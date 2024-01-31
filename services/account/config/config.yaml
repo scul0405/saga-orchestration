@@ -1,0 +1,32 @@
+service:
+    Name: account_service
+    Mode: Development
+    Debug: true
+    ReadTimeout: 5
+    WriteTimeout: 5
+
+grpc:
+  port: 50051
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: console
+  Level: info
+
+postgres:
+  PostgresqlHost: postgres
+  PostgresqlPort: 5432
+  PostgresqlUser: admin
+  PostgresqlPassword: secret
+  PostgresqlDbname: account_db
+  PostgresqlSslMode: false
+  PgDriver: pgx
+
+migration:
+  enable: true
+  recreate: false
+  source: file://migrations
+  dbURL: postgres://admin:secret@postgres:5432/account_db?sslmode=disable
+
