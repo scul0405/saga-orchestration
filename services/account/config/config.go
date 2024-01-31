@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	Service  Service
-	GRPC     GRPC
-	Logger   Logger
-	Postgres Postgres
+	Service   Service
+	GRPC      GRPC
+	Logger    Logger
+	Postgres  Postgres
+	Migration Migration
 }
 
 type Service struct {
@@ -23,7 +24,7 @@ type Service struct {
 }
 
 type GRPC struct {
-	Port int
+	Port string
 }
 
 type Logger struct {
@@ -36,12 +37,16 @@ type Logger struct {
 
 type Postgres struct {
 	Host     string
-	Port     int
+	Port     string
 	User     string
 	Password string
 	Dbname   string
 	SSlMode  string
-	PgDriver string
+}
+
+type Migration struct {
+	Enable   bool
+	Recreate bool
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

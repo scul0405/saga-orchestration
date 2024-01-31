@@ -16,17 +16,14 @@ logger:
   Level: info
 
 postgres:
-  PostgresqlHost: postgres
-  PostgresqlPort: 5432
-  PostgresqlUser: admin
-  PostgresqlPassword: secret
-  PostgresqlDbname: account_db
-  PostgresqlSslMode: false
-  PgDriver: pgx
+  Host: localhost
+  Port: 5432
+  User: admin
+  Password: secret
+  Dbname: account_db
+  SslMode: false
 
 migration:
   enable: true
   recreate: false
-  source: file://migrations
-  dbURL: postgres://admin:secret@postgres:5432/account_db?sslmode=disable
 

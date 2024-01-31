@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/scul0405/saga-orchestration/services/account/config"
+	"github.com/scul0405/saga-orchestration/services/account/internal/app"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	"log"
 )
@@ -22,4 +23,6 @@ func main() {
 	appLogger := logger.NewApiLogger(cfg)
 	appLogger.InitLogger()
 	appLogger.Infof("Service Name: %s, LogLevel: %s, Mode: %s", cfg.Service.Name, cfg.Logger.Level, cfg.Service.Mode)
+
+	appLogger.Fatal(app.NewApp(cfg, appLogger).Run())
 }
