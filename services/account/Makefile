@@ -1,4 +1,4 @@
 run:
-	go run cmd/main.go
+	go run cmd/api/main.go
 
 PHONY: run

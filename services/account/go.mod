@@ -2,7 +2,10 @@ module github.com/scul0405/saga-orchestration/services/account
 
 go 1.20
 
-require github.com/spf13/viper v1.18.2
+require (
+	github.com/spf13/viper v1.18.2
+	go.uber.org/zap v1.21.0
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
