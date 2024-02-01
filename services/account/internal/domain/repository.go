@@ -1,3 +1,4 @@
+//go:generate mockgen -source repository.go -destination ../service/account/mock/service_mock.go -package mock
 package domain
 
 import (
