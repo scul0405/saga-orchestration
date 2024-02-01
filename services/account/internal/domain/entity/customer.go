@@ -8,5 +8,5 @@ type Customer struct {
 	Active       bool
 	Password     string
 	PersonalInfo *valueobject.CustomerPersonalInfo
-	ShippingInfo *valueobject.CustomerDeliveryInfo
+	DeliveryInfo *valueobject.CustomerDeliveryInfo
 }
