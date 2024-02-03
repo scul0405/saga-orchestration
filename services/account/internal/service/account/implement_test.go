@@ -6,7 +6,7 @@ import (
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	"github.com/scul0405/saga-orchestration/services/account/internal/repository/postgres_repo"
-	"github.com/scul0405/saga-orchestration/services/account/internal/service/account/mock"
+	"github.com/scul0405/saga-orchestration/services/account/internal/service/mock"
 	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
