@@ -13,6 +13,7 @@ type Config struct {
 	Logger    Logger
 	Postgres  Postgres
 	Migration Migration
+	JWTConfig JWTConfig
 }
 
 type Service struct {
@@ -47,6 +48,12 @@ type Postgres struct {
 type Migration struct {
 	Enable   bool
 	Recreate bool
+}
+
+type JWTConfig struct {
+	SecretKey          string
+	AccessTokenExpire  uint
+	RefreshTokenExpire uint
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

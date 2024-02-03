@@ -1,12 +1,12 @@
 service:
-    Name: account_service
-    Mode: Development
-    Debug: true
-    ReadTimeout: 5
-    WriteTimeout: 5
+  Name: account_service
+  Mode: Development
+  Debug: true
+  ReadTimeout: 5
+  WriteTimeout: 5
 
 grpc:
-  port: 50051
+  Port: 50051
 
 logger:
   Development: true
@@ -24,6 +24,11 @@ postgres:
   SslMode: false
 
 migration:
-  enable: true
-  recreate: false
+  Enable: true
+  Recreate: false
+
+jwtConfig:
+  SecretKey: "804a3f9aa8ad199cb71ae7bacefd9357"
+  AccessTokenExpire: 5 # in minutes
+  RefreshTokenExpire: 15 # in minutes
 
