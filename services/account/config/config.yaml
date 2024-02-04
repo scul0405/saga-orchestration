@@ -5,8 +5,17 @@ service:
   ReadTimeout: 5
   WriteTimeout: 5
 
+http:
+  Port: 8080
+  Mode: debug
+
 grpc:
   Port: 50051
+  Timeout: 15
+  Time: 5
+  MaxConnectionIdle: 30
+  MaxConnectionAge: 5
+
 
 logger:
   Development: true
