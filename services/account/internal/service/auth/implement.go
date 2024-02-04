@@ -155,11 +155,18 @@ func (s *jwtAuthServiceImpl) parseToken(accessToken string) (*jwt.Token, error) 
 }
 
 func (s *jwtAuthServiceImpl) generateToken(customerID uint64, refresh bool) (string, error) {
+	var expiresAt time.Time
+	if refresh {
+		expiresAt = time.Now().Add(time.Duration(s.jwtConfig.RefreshTokenExpire) * time.Minute)
+	} else {
+		expiresAt = time.Now().Add(time.Duration(s.jwtConfig.AccessTokenExpire) * time.Minute)
+	}
+
 	claims := &valueobject.JWTClaims{
 		CustomerID: customerID,
 		Refresh:    refresh,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(s.jwtConfig.AccessTokenExpire) * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
 		},
 	}
 
