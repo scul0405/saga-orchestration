@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Service   Service
+	HTTP      HTTP
 	GRPC      GRPC
 	Logger    Logger
 	Postgres  Postgres
@@ -24,8 +25,17 @@ type Service struct {
 	WriteTimeout time.Duration
 }
 
-type GRPC struct {
+type HTTP struct {
 	Port string
+	Mode string
+}
+
+type GRPC struct {
+	Port              string
+	Time              time.Duration
+	Timeout           time.Duration
+	MaxConnectionIdle time.Duration
+	MaxConnectionAge  time.Duration
 }
 
 type Logger struct {
