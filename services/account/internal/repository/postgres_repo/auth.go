@@ -3,6 +3,7 @@ package postgres_repo
 import (
 	"context"
 	"errors"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
@@ -62,6 +63,11 @@ func (r *jwtAuthRepositoryImpl) CreateCustomer(ctx context.Context, customer *en
 		PhoneNumber: customer.DeliveryInfo.PhoneNumber,
 		Password:    hashedPassword,
 	}).WithContext(ctx).Error; err != nil {
+		if pgError := err.(*pgconn.PgError); errors.Is(err, pgError) {
+			if pgError.Code == "23505" {
+				return ErrDuplicateEntry
+			}
+		}
 		return err
 	}
 	return nil
