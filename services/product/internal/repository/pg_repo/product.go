@@ -50,6 +50,47 @@ func (r *productRepositoryImpl) GetProductInventory(ctx context.Context, product
 	return product.Inventory, nil
 }
 
+func (r *productRepositoryImpl) GetProduct(ctx context.Context, productIDs uint64) (*entity.Product, error) {
+	var product model.Product
+	if err := r.db.Where("id = ?", productIDs).First(&product).Error; err != nil {
+		return nil, err
+	}
+
+	return &entity.Product{
+		ID:         product.ID,
+		CategoryID: product.CategoryID,
+		Detail: &valueobject.ProductDetail{
+			Name:        product.Name,
+			Description: product.Description,
+			BrandName:   product.BrandName,
+			Price:       product.Price,
+		},
+		Inventory: product.Inventory,
+	}, nil
+}
+
+func (r *productRepositoryImpl) ListProducts(ctx context.Context, limit, offset uint64) (*[]valueobject.ProductCatalog, error) {
+	var products []valueobject.ProductCatalog
+	if err := r.db.Model(&model.Product{}).
+		Select("id", "category_id", "name", "price", "inventory").
+		Offset(int(offset)).Limit(int(limit)).
+		Find(&products).Error; err != nil {
+		return nil, err
+	}
+
+	productCatalogs := make([]valueobject.ProductCatalog, len(products))
+	for i, product := range products {
+		productCatalogs[i] = valueobject.ProductCatalog{
+			ID:         product.ID,
+			CategoryID: product.CategoryID,
+			Name:       product.Name,
+			Price:      product.Price,
+		}
+	}
+
+	return &productCatalogs, nil
+}
+
 func (r *productRepositoryImpl) CreateProduct(ctx context.Context, product *entity.Product) error {
 	if err := r.db.Create(model.Product{
 		ID:          product.ID,

@@ -11,6 +11,8 @@ type ProductRepository interface {
 	CheckProduct(ctx context.Context, productID uint64) (bool, error)
 	GetProductDetail(ctx context.Context, productID uint64) (*valueobject.ProductDetail, error)
 	GetProductInventory(ctx context.Context, productID uint64) (uint64, error)
+	GetProduct(ctx context.Context, productIDs uint64) (*entity.Product, error)
+	ListProducts(ctx context.Context, limit, offset uint64) (*[]valueobject.ProductCatalog, error)
 	CreateProduct(ctx context.Context, product *entity.Product) error
 	UpdateProductDetail(ctx context.Context, productID uint64, product *valueobject.ProductDetail) error
 	UpdateProductInventory(ctx context.Context, idempotencyKey uint64, purchasedProducts *[]valueobject.PurchasedProduct) error
