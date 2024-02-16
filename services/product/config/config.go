@@ -8,12 +8,13 @@ import (
 )
 
 type Config struct {
-	Service   Service
-	HTTP      HTTP
-	GRPC      GRPC
-	Logger    Logger
-	Postgres  Postgres
-	Migration Migration
+	Service     Service
+	HTTP        HTTP
+	GRPC        GRPC
+	Logger      Logger
+	Postgres    Postgres
+	Migration   Migration
+	RpcEnpoints RpcEndpoints
 }
 
 type Service struct {
@@ -57,6 +58,10 @@ type Postgres struct {
 type Migration struct {
 	Enable   bool
 	Recreate bool
+}
+
+type RpcEndpoints struct {
+	AuthSvc string
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {
