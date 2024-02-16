@@ -92,7 +92,7 @@ func (r *productRepositoryImpl) ListProducts(ctx context.Context, limit, offset 
 }
 
 func (r *productRepositoryImpl) CreateProduct(ctx context.Context, product *entity.Product) error {
-	if err := r.db.Create(model.Product{
+	if err := r.db.Create(&model.Product{
 		ID:          product.ID,
 		CategoryID:  product.CategoryID,
 		Name:        product.Detail.Name,
