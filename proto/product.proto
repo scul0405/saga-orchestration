@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package product;
+option go_package = ".;pb";
+
+message OrderItem {
+  uint64 product_id = 1;
+  uint64 quantity = 2;
+}
+
+message CheckProductRequest {
+  repeated OrderItem items = 1;
+}
+
+enum Status {
+  OK = 0;
+  NOT_FOUND = 1;
+  NOT_ENOUGH = 2;
+  INTERNAL_ERROR = 3;
+}
+
+message ProductStatus {
+  uint64 product_id = 1;
+  Status status = 2;
+}
+
+message CheckProductResponse {
+  repeated ProductStatus statuses = 1;
+}
+
+message GetProductsRequest {
+  repeated  uint64 product_ids = 1;
+}
+
+message Product {
+  uint64 id = 1;
+  uint64 category = 2;
+  string name = 3;
+  string brand_name = 4;
+  string description = 5;
+  uint64 price = 6;
+  uint64 inventory = 7;
+}
+
+message GetProductsResponse {
+  repeated Product products = 1;
+}
+
+service ProductService {
+  rpc CheckProduct(CheckProductRequest) returns (CheckProductResponse);
+  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+}
