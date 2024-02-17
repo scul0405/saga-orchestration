@@ -6,6 +6,7 @@ import (
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/db/postgres"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/grpc/auth"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/logger"
+	"github.com/scul0405/saga-orchestration/services/product/internal/interface/grpc"
 	"github.com/scul0405/saga-orchestration/services/product/internal/interface/http"
 	"github.com/scul0405/saga-orchestration/services/product/internal/repository/pg_repo"
 	"github.com/scul0405/saga-orchestration/services/product/internal/service"
@@ -89,6 +90,16 @@ func main() {
 		}
 	}()
 
+	// create grpc server
+	grpcServer := grpc.NewGRPCServer(cfg.GRPC, productSvc)
+
+	// run grpc server
+	go func() {
+		if err := grpcServer.Run(); err != nil {
+			apiLogger.Fatalf("Run grpc server err: %v", err)
+		}
+	}()
+
 	doneCh := make(chan struct{}) // for graceful shutdown
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
@@ -103,6 +114,8 @@ func main() {
 		if err != nil {
 			apiLogger.Errorf("httpServer.GracefulStop err: %v", err)
 		}
+
+		grpcServer.GracefulStop()
 
 		doneCh <- struct{}{}
 	}()
