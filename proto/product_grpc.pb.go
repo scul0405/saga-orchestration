@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductServiceClient interface {
-	CheckProduct(ctx context.Context, in *CheckProductRequest, opts ...grpc.CallOption) (*CheckProductResponse, error)
+	CheckProducts(ctx context.Context, in *CheckProductsRequest, opts ...grpc.CallOption) (*CheckProductsResponse, error)
 	GetProducts(ctx context.Context, in *GetProductsRequest, opts ...grpc.CallOption) (*GetProductsResponse, error)
 }
 
@@ -34,9 +34,9 @@ func NewProductServiceClient(cc grpc.ClientConnInterface) ProductServiceClient {
 	return &productServiceClient{cc}
 }
 
-func (c *productServiceClient) CheckProduct(ctx context.Context, in *CheckProductRequest, opts ...grpc.CallOption) (*CheckProductResponse, error) {
-	out := new(CheckProductResponse)
-	err := c.cc.Invoke(ctx, "/product.ProductService/CheckProduct", in, out, opts...)
+func (c *productServiceClient) CheckProducts(ctx context.Context, in *CheckProductsRequest, opts ...grpc.CallOption) (*CheckProductsResponse, error) {
+	out := new(CheckProductsResponse)
+	err := c.cc.Invoke(ctx, "/product.ProductService/CheckProducts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *productServiceClient) GetProducts(ctx context.Context, in *GetProductsR
 // All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility
 type ProductServiceServer interface {
-	CheckProduct(context.Context, *CheckProductRequest) (*CheckProductResponse, error)
+	CheckProducts(context.Context, *CheckProductsRequest) (*CheckProductsResponse, error)
 	GetProducts(context.Context, *GetProductsRequest) (*GetProductsResponse, error)
 	mustEmbedUnimplementedProductServiceServer()
 }
@@ -65,8 +65,8 @@ type ProductServiceServer interface {
 type UnimplementedProductServiceServer struct {
 }
 
-func (UnimplementedProductServiceServer) CheckProduct(context.Context, *CheckProductRequest) (*CheckProductResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckProduct not implemented")
+func (UnimplementedProductServiceServer) CheckProducts(context.Context, *CheckProductsRequest) (*CheckProductsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckProducts not implemented")
 }
 func (UnimplementedProductServiceServer) GetProducts(context.Context, *GetProductsRequest) (*GetProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProducts not implemented")
@@ -84,20 +84,20 @@ func RegisterProductServiceServer(s grpc.ServiceRegistrar, srv ProductServiceSer
 	s.RegisterService(&ProductService_ServiceDesc, srv)
 }
 
-func _ProductService_CheckProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckProductRequest)
+func _ProductService_CheckProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckProductsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProductServiceServer).CheckProduct(ctx, in)
+		return srv.(ProductServiceServer).CheckProducts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/product.ProductService/CheckProduct",
+		FullMethod: "/product.ProductService/CheckProducts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductServiceServer).CheckProduct(ctx, req.(*CheckProductRequest))
+		return srv.(ProductServiceServer).CheckProducts(ctx, req.(*CheckProductsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -128,8 +128,8 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProductServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CheckProduct",
-			Handler:    _ProductService_CheckProduct_Handler,
+			MethodName: "CheckProducts",
+			Handler:    _ProductService_CheckProducts_Handler,
 		},
 		{
 			MethodName: "GetProducts",
