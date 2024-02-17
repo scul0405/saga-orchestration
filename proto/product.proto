@@ -8,7 +8,7 @@ message OrderItem {
   uint64 quantity = 2;
 }
 
-message CheckProductRequest {
+message CheckProductsRequest {
   repeated OrderItem items = 1;
 }
 
@@ -24,7 +24,7 @@ message ProductStatus {
   Status status = 2;
 }
 
-message CheckProductResponse {
+message CheckProductsResponse {
   repeated ProductStatus statuses = 1;
 }
 
@@ -47,6 +47,6 @@ message GetProductsResponse {
 }
 
 service ProductService {
-  rpc CheckProduct(CheckProductRequest) returns (CheckProductResponse);
+  rpc CheckProducts(CheckProductsRequest) returns (CheckProductsResponse);
   rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
 }
