@@ -79,13 +79,13 @@ func (r *Router) UpdateProductDetail(c *gin.Context) {
 func (r *Router) GetProduct(c *gin.Context) {
 	idParam := c.Param("id")
 
-	productID, err := strconv.Atoi(idParam)
+	productID, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID})
 		return
 	}
 
-	productsID := []uint64{uint64(productID)}
+	productsID := []uint64{productID}
 
 	products, err := r.app.Queries.GetProducts.Handle(c, query.GetProducts{ProductIDs: &productsID})
 	if err != nil {

@@ -78,7 +78,7 @@ func main() {
 	}
 	authSvc := service.NewAuthService(cfg, authConn)
 
-	// create grpc server
+	// create http server
 	engine := http.NewEngine(cfg.HTTP)
 	router := http.NewRouter(productSvc, authSvc)
 	httpServer := http.NewHTTPServer(cfg.HTTP, apiLogger, engine, router)
