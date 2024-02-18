@@ -36,5 +36,5 @@ migration:
   Recreate: false
 
 rpcEndpoints:
-  authSvc: "localhost:50051"
-  productSvc: "localhost:50052"
+  authSvc: ":50051"
+  productSvc: ":50052"

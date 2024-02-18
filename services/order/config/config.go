@@ -14,7 +14,7 @@ type Config struct {
 	Logger      Logger
 	Postgres    Postgres
 	Migration   Migration
-	RpcEnpoints RpcEndpoints
+	RpcEnpoints RpcEndpoints `mapstructure:"rpcEndpoints"`
 }
 
 type Service struct {
@@ -61,7 +61,8 @@ type Migration struct {
 }
 
 type RpcEndpoints struct {
-	AuthSvc string
+	AuthSvc    string
+	ProductSvc string
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {
