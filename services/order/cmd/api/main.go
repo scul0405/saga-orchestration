@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/scul0405/saga-orchestration/services/product/config"
-	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/db/postgres"
-	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/grpc/auth"
-	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/logger"
-	"github.com/scul0405/saga-orchestration/services/product/internal/interface/grpc"
-	"github.com/scul0405/saga-orchestration/services/product/internal/interface/http"
-	"github.com/scul0405/saga-orchestration/services/product/internal/repository/pg_repo"
-	"github.com/scul0405/saga-orchestration/services/product/internal/service"
-	"github.com/scul0405/saga-orchestration/services/product/pkg"
+	"github.com/scul0405/saga-orchestration/services/order/config"
+	"github.com/scul0405/saga-orchestration/services/order/internal/infrastructure/db/postgres"
+	"github.com/scul0405/saga-orchestration/services/order/internal/infrastructure/grpc/auth"
+	"github.com/scul0405/saga-orchestration/services/order/internal/infrastructure/grpc/product"
+	"github.com/scul0405/saga-orchestration/services/order/internal/infrastructure/logger"
+	"github.com/scul0405/saga-orchestration/services/order/internal/interface/http"
+	"github.com/scul0405/saga-orchestration/services/order/internal/repository/pg_repo"
+	"github.com/scul0405/saga-orchestration/services/order/internal/service"
+	"github.com/scul0405/saga-orchestration/services/order/pkg"
 	"log"
 	"os"
 	"os/signal"
@@ -23,7 +23,7 @@ const (
 )
 
 func main() {
-	log.Println("Start product service...")
+	log.Println("Start order service...")
 
 	cfgFile, err := config.LoadConfig("./config/config")
 	if err != nil {
@@ -61,7 +61,7 @@ func main() {
 	apiLogger.Info("Migrations successfully")
 
 	// create repositories
-	productRepo := pg_repo.NewProductRepository(psqlDB)
+	orderRepo := pg_repo.NewOrderRepository(psqlDB)
 
 	// create sony flake
 	sf, err := pkg.NewSonyFlake()
@@ -69,34 +69,32 @@ func main() {
 		apiLogger.Fatal(err)
 	}
 
-	// create services
-	productSvc := service.NewProductService(sf, apiLogger, productRepo)
+	// Create connection
+	productConn, err := product.NewProductConn(cfg)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
 
 	authConn, err := auth.NewAuthConn(cfg)
 	if err != nil {
 		apiLogger.Fatal(err)
 	}
-	authSvc := service.NewAuthService(cfg, authConn)
+
+	// create services
+	productSvc := product.NewProductService(cfg, productConn)
+	orderSvc := service.NewOrderService(sf, apiLogger, orderRepo, productSvc)
+
+	authSvc := auth.NewAuthService(cfg, authConn)
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)
-	router := http.NewRouter(productSvc, authSvc)
+	router := http.NewRouter(orderSvc, authSvc)
 	httpServer := http.NewHTTPServer(cfg.HTTP, apiLogger, engine, router)
 
 	// run http server
 	go func() {
 		if err := httpServer.Run(); err != nil {
 			apiLogger.Fatalf("Run http server err: %v", err)
-		}
-	}()
-
-	// create grpc server
-	grpcServer := grpc.NewGRPCServer(cfg.GRPC, productSvc)
-
-	// run grpc server
-	go func() {
-		if err := grpcServer.Run(); err != nil {
-			apiLogger.Fatalf("Run grpc server err: %v", err)
 		}
 	}()
 
@@ -114,8 +112,6 @@ func main() {
 		if err != nil {
 			apiLogger.Errorf("httpServer.GracefulStop err: %v", err)
 		}
-
-		grpcServer.GracefulStop()
 
 		doneCh <- struct{}{}
 	}()
