@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/account/config"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/db/postgres"
-	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	portgrpc "github.com/scul0405/saga-orchestration/services/account/internal/ports/grpc"
 	porthttp "github.com/scul0405/saga-orchestration/services/account/internal/ports/http"
 	"github.com/scul0405/saga-orchestration/services/account/internal/repository/postgres_repo"
@@ -35,9 +35,9 @@ func main() {
 		log.Fatalf("ParseConfig: %v", err)
 	}
 
-	apiLogger := logger.NewApiLogger(cfg)
+	apiLogger := logger.NewApiLogger(&cfg.App)
 	apiLogger.InitLogger()
-	apiLogger.Infof("Service Name: %s, LogLevel: %s, Mode: %s", cfg.Service.Name, cfg.Logger.Level, cfg.Service.Mode)
+	apiLogger.Infof("Service Name: %s, LogLevel: %s, Mode: %s", cfg.App.Service.Name, cfg.App.Logger.Level, cfg.App.Service.Mode)
 
 	doneCh := make(chan struct{}) // for graceful shutdown
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
@@ -116,5 +116,5 @@ func main() {
 	}()
 
 	<-doneCh
-	apiLogger.Infof("%s app exited properly", cfg.Service.Name)
+	apiLogger.Infof("%s app exited properly", cfg.App.Service.Name)
 }

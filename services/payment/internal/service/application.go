@@ -1,15 +1,15 @@
 package service
 
 import (
+	"github.com/scul0405/saga-orchestration/pkg/logger"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/app"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/app/command"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/app/query"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/domain"
-	"github.com/scul0405/saga-orchestration/services/payment/internal/infrastructure/logger"
-	"github.com/scul0405/saga-orchestration/services/payment/pkg"
 )
 
-func NewPaymentService(sf pkg.IDGenerator, logger logger.Logger, paymentRepo domain.PaymentRepository) app.Application {
+func NewPaymentService(sf sonyflake.IDGenerator, logger logger.Logger, paymentRepo domain.PaymentRepository) app.Application {
 	return app.Application{
 		Commands: app.Commands{
 			CreatePayment:   command.NewCreatePaymentHandler(sf, logger, paymentRepo),

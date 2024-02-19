@@ -2,8 +2,8 @@ package command
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/services/order/internal/domain"
-	"github.com/scul0405/saga-orchestration/services/order/internal/infrastructure/logger"
 )
 
 type DeleteOrder struct {

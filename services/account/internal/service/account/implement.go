@@ -2,10 +2,11 @@ package account
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/services/account/internal/app"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
+
 	"github.com/scul0405/saga-orchestration/services/account/internal/repository/postgres_repo"
 )
 

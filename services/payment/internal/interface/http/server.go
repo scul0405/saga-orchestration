@@ -3,8 +3,8 @@ package http
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/services/payment/config"
-	"github.com/scul0405/saga-orchestration/services/payment/internal/infrastructure/logger"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/interface/http/middleware"
 	"net/http"
 )

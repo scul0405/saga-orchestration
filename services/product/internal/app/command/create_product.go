@@ -2,11 +2,11 @@ package command
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/product/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/product/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/product/internal/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/logger"
 )
 
 type CreateProduct struct {

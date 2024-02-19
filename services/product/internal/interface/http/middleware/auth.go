@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/logger"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/services/product/internal/service"
 	"net/http"
 )

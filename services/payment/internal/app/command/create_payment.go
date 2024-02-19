@@ -2,10 +2,10 @@ package command
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/domain/entity"
-	"github.com/scul0405/saga-orchestration/services/payment/internal/infrastructure/logger"
-	"github.com/scul0405/saga-orchestration/services/payment/pkg"
 )
 
 type CreatePayment struct {
@@ -17,12 +17,12 @@ type CreatePayment struct {
 type CreatePaymentHandler CommandHandler[CreatePayment]
 
 type createPaymentHandler struct {
-	sf          pkg.IDGenerator
+	sf          sonyflake.IDGenerator
 	logger      logger.Logger
 	paymentRepo domain.PaymentRepository
 }
 
-func NewCreatePaymentHandler(sf pkg.IDGenerator, logger logger.Logger, paymentRepo domain.PaymentRepository) CreatePaymentHandler {
+func NewCreatePaymentHandler(sf sonyflake.IDGenerator, logger logger.Logger, paymentRepo domain.PaymentRepository) CreatePaymentHandler {
 	return &createPaymentHandler{
 		sf:          sf,
 		logger:      logger,

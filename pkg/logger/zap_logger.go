@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/scul0405/saga-orchestration/services/account/config"
+	"github.com/scul0405/saga-orchestration/pkg/appconfig"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -24,11 +24,11 @@ type Logger interface {
 }
 
 type ApiLogger struct {
-	cfg         *config.Config
+	cfg         *appconfig.App
 	sugarLogger *zap.SugaredLogger
 }
 
-func NewApiLogger(cfg *config.Config) *ApiLogger {
+func NewApiLogger(cfg *appconfig.App) *ApiLogger {
 	return &ApiLogger{cfg: cfg}
 }
 
@@ -58,7 +58,7 @@ func (mws WrappedWriteSyncer) Sync() error {
 	return nil
 }
 
-func (l *ApiLogger) getLoggerLevel(cfg *config.Config) zapcore.Level {
+func (l *ApiLogger) getLoggerLevel(cfg *appconfig.App) zapcore.Level {
 	level, exist := loggerLevelMap[cfg.Logger.Level]
 	if !exist {
 		return zapcore.DebugLevel

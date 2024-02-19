@@ -3,12 +3,13 @@ package auth
 import (
 	"context"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/scul0405/saga-orchestration/pkg/appconfig"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/scul0405/saga-orchestration/services/account/config"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	"github.com/scul0405/saga-orchestration/services/account/internal/service/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -23,11 +24,13 @@ func TestAuth(t *testing.T) {
 	require.NoError(t, err)
 
 	cfg := &config.Config{
-		Logger: config.Logger{
-			Development:       true,
-			DisableCaller:     false,
-			DisableStacktrace: false,
-			Encoding:          "json",
+		App: appconfig.App{
+			Logger: appconfig.Logger{
+				Development:       true,
+				DisableCaller:     false,
+				DisableStacktrace: false,
+				Encoding:          "json",
+			},
 		},
 		JWTConfig: config.JWTConfig{
 			SecretKey:          "test-secret-key-for-jwt-12345678",
@@ -36,7 +39,7 @@ func TestAuth(t *testing.T) {
 		},
 	}
 
-	apiLogger := logger.NewApiLogger(cfg)
+	apiLogger := logger.NewApiLogger(&cfg.App)
 
 	customerID, err := sf.NextID()
 	require.NoError(t, err)
@@ -126,11 +129,13 @@ func TestRegister(t *testing.T) {
 	require.NoError(t, err)
 
 	cfg := &config.Config{
-		Logger: config.Logger{
-			Development:       true,
-			DisableCaller:     false,
-			DisableStacktrace: false,
-			Encoding:          "json",
+		App: appconfig.App{
+			Logger: appconfig.Logger{
+				Development:       true,
+				DisableCaller:     false,
+				DisableStacktrace: false,
+				Encoding:          "json",
+			},
 		},
 		JWTConfig: config.JWTConfig{
 			SecretKey:          "test-secret-key-for-jwt-12345678",
@@ -139,7 +144,7 @@ func TestRegister(t *testing.T) {
 		},
 	}
 
-	apiLogger := logger.NewApiLogger(cfg)
+	apiLogger := logger.NewApiLogger(&cfg.App)
 
 	customerID, err := sf.NextID()
 	require.NoError(t, err)
@@ -201,11 +206,13 @@ func TestLogin(t *testing.T) {
 	require.NoError(t, err)
 
 	cfg := &config.Config{
-		Logger: config.Logger{
-			Development:       true,
-			DisableCaller:     false,
-			DisableStacktrace: false,
-			Encoding:          "json",
+		App: appconfig.App{
+			Logger: appconfig.Logger{
+				Development:       true,
+				DisableCaller:     false,
+				DisableStacktrace: false,
+				Encoding:          "json",
+			},
 		},
 		JWTConfig: config.JWTConfig{
 			SecretKey:          "test-secret-key-for-jwt-12345678",
@@ -214,7 +221,7 @@ func TestLogin(t *testing.T) {
 		},
 	}
 
-	apiLogger := logger.NewApiLogger(cfg)
+	apiLogger := logger.NewApiLogger(&cfg.App)
 
 	customerID, err := sf.NextID()
 	require.NoError(t, err)

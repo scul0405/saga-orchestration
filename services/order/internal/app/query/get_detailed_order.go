@@ -2,10 +2,10 @@ package query
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/services/order/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/order/internal/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/services/order/internal/infrastructure/grpc/product"
-	"github.com/scul0405/saga-orchestration/services/order/internal/infrastructure/logger"
 )
 
 type GetDetailedOrder struct {

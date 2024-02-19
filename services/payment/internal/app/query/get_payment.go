@@ -2,9 +2,9 @@ package query
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/payment/internal/domain/entity"
-	"github.com/scul0405/saga-orchestration/services/payment/internal/infrastructure/logger"
 )
 
 type GetPayment struct {

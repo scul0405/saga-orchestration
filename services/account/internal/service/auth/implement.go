@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/scul0405/saga-orchestration/services/account/config"
@@ -11,7 +12,6 @@ import (
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	"time"
 )
 

@@ -2,27 +2,19 @@ package config
 
 import (
 	"errors"
+	"github.com/scul0405/saga-orchestration/pkg/appconfig"
 	"github.com/spf13/viper"
 	"log"
 	"time"
 )
 
 type Config struct {
-	Service     Service
+	App         appconfig.App
 	HTTP        HTTP
 	GRPC        GRPC
-	Logger      Logger
 	Postgres    Postgres
 	Migration   Migration
 	RpcEnpoints RpcEndpoints
-}
-
-type Service struct {
-	Name         string
-	Mode         string
-	Debug        bool
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
 }
 
 type HTTP struct {
@@ -36,14 +28,6 @@ type GRPC struct {
 	Timeout           time.Duration
 	MaxConnectionIdle time.Duration
 	MaxConnectionAge  time.Duration
-}
-
-type Logger struct {
-	Development       bool
-	DisableCaller     bool
-	DisableStacktrace bool
-	Encoding          string
-	Level             string
 }
 
 type Postgres struct {

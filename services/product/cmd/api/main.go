@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/product/config"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/db/postgres"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/grpc/auth"
-	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/logger"
 	"github.com/scul0405/saga-orchestration/services/product/internal/interface/grpc"
 	"github.com/scul0405/saga-orchestration/services/product/internal/interface/http"
 	"github.com/scul0405/saga-orchestration/services/product/internal/repository/pg_repo"
@@ -35,9 +35,9 @@ func main() {
 		log.Fatalf("ParseConfig: %v", err)
 	}
 
-	apiLogger := logger.NewApiLogger(cfg)
+	apiLogger := logger.NewApiLogger(&cfg.App)
 	apiLogger.InitLogger()
-	apiLogger.Infof("Service Name: %s, LogLevel: %s, Mode: %s", cfg.Service.Name, cfg.Logger.Level, cfg.Service.Mode)
+	apiLogger.Infof("Service Name: %s, LogLevel: %s, Mode: %s", cfg.App.Service.Name, cfg.App.Logger.Level, cfg.App.Service.Mode)
 
 	// connect postgres
 	psqlDB, err := postgres.NewPsqlDB(cfg)
@@ -121,4 +121,5 @@ func main() {
 	}()
 
 	<-doneCh
+	apiLogger.Infof("%s app exited properly", cfg.App.Service.Name)
 }

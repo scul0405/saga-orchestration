@@ -2,16 +2,16 @@ package config
 
 import (
 	"errors"
+	"github.com/scul0405/saga-orchestration/pkg/appconfig"
 	"github.com/spf13/viper"
 	"log"
 	"time"
 )
 
 type Config struct {
-	Service     Service
+	App         appconfig.App
 	HTTP        HTTP
 	GRPC        GRPC
-	Logger      Logger
 	Postgres    Postgres
 	Migration   Migration
 	RpcEnpoints RpcEndpoints `mapstructure:"rpcEndpoints"`

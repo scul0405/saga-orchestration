@@ -2,10 +2,11 @@ package account
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/appconfig"
+	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/account/config"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	"github.com/scul0405/saga-orchestration/services/account/internal/repository/postgres_repo"
 	"github.com/scul0405/saga-orchestration/services/account/internal/service/mock"
 	"github.com/stretchr/testify/require"
@@ -46,14 +47,16 @@ func TestGetPersonalInfo(t *testing.T) {
 			defer ctrl.Finish()
 
 			cfg := &config.Config{
-				Logger: config.Logger{
-					Development:       true,
-					DisableCaller:     false,
-					DisableStacktrace: false,
-					Encoding:          "json",
+				App: appconfig.App{
+					Logger: appconfig.Logger{
+						Development:       true,
+						DisableCaller:     false,
+						DisableStacktrace: false,
+						Encoding:          "json",
+					},
 				},
 			}
-			apiLogger := logger.NewApiLogger(cfg)
+			apiLogger := logger.NewApiLogger(&cfg.App)
 
 			repo := mock.NewMockCustomerRepository(ctrl)
 			tc.buildStub(repo)
@@ -103,14 +106,16 @@ func TestGetDeliveryInfo(t *testing.T) {
 			defer ctrl.Finish()
 
 			cfg := &config.Config{
-				Logger: config.Logger{
-					Development:       true,
-					DisableCaller:     false,
-					DisableStacktrace: false,
-					Encoding:          "json",
+				App: appconfig.App{
+					Logger: appconfig.Logger{
+						Development:       true,
+						DisableCaller:     false,
+						DisableStacktrace: false,
+						Encoding:          "json",
+					},
 				},
 			}
-			apiLogger := logger.NewApiLogger(cfg)
+			apiLogger := logger.NewApiLogger(&cfg.App)
 
 			repo := mock.NewMockCustomerRepository(ctrl)
 			tc.buildStub(repo)
@@ -166,14 +171,16 @@ func TestUpdatePersonalInfo(t *testing.T) {
 			defer ctrl.Finish()
 
 			cfg := &config.Config{
-				Logger: config.Logger{
-					Development:       true,
-					DisableCaller:     false,
-					DisableStacktrace: false,
-					Encoding:          "json",
+				App: appconfig.App{
+					Logger: appconfig.Logger{
+						Development:       true,
+						DisableCaller:     false,
+						DisableStacktrace: false,
+						Encoding:          "json",
+					},
 				},
 			}
-			apiLogger := logger.NewApiLogger(cfg)
+			apiLogger := logger.NewApiLogger(&cfg.App)
 
 			repo := mock.NewMockCustomerRepository(ctrl)
 			tc.buildStub(repo)
@@ -226,14 +233,16 @@ func TestUpdateDeliveryInfo(t *testing.T) {
 			defer ctrl.Finish()
 
 			cfg := &config.Config{
-				Logger: config.Logger{
-					Development:       true,
-					DisableCaller:     false,
-					DisableStacktrace: false,
-					Encoding:          "json",
+				App: appconfig.App{
+					Logger: appconfig.Logger{
+						Development:       true,
+						DisableCaller:     false,
+						DisableStacktrace: false,
+						Encoding:          "json",
+					},
 				},
 			}
-			apiLogger := logger.NewApiLogger(cfg)
+			apiLogger := logger.NewApiLogger(&cfg.App)
 
 			repo := mock.NewMockCustomerRepository(ctrl)
 			tc.buildStub(repo)
