@@ -28,7 +28,7 @@ func (r *orderRepositoryImpl) GetOrder(ctx context.Context, id uint64) (*entity.
 	for i, entry := range order {
 		purchasedProducts[i] = valueobject.PurchasedProduct{
 			ID:       entry.ProductID,
-			Quantity: entry.Amount,
+			Quantity: entry.Quantity,
 		}
 	}
 
@@ -47,7 +47,7 @@ func (r *orderRepositoryImpl) CreateOrder(ctx context.Context, order *entity.Ord
 			ID:         order.ID,
 			ProductID:  product.ID,
 			CustomerID: order.CustomerID,
-			Amount:     product.Quantity,
+			Quantity:   product.Quantity,
 		}
 	}
 

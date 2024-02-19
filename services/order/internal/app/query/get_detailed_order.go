@@ -39,11 +39,8 @@ func (h *getDetailedOrderHandler) Handle(ctx context.Context, query GetDetailedO
 		productIds[i] = p.ID
 	}
 
-	h.logger.Infof("Get products by ids: %v", productIds)
-
 	products, err := h.productSvc.GetProducts(ctx, &productIds)
 	if err != nil {
-		h.logger.Errorf("GetProducts err: %v", err)
 		return nil, err
 	}
 
