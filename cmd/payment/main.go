@@ -2,13 +2,12 @@ package main
 
 import (
 	"context"
-	"github.com/scul0405/saga-orchestration/cmd/account/config"
-	"github.com/scul0405/saga-orchestration/internal/account/infrastructure/db/postgres"
-	portgrpc "github.com/scul0405/saga-orchestration/internal/account/ports/grpc"
-	porthttp "github.com/scul0405/saga-orchestration/internal/account/ports/http"
-	"github.com/scul0405/saga-orchestration/internal/account/repository/postgres_repo"
-	customersvc "github.com/scul0405/saga-orchestration/internal/account/service/account"
-	authsvc "github.com/scul0405/saga-orchestration/internal/account/service/auth"
+	"github.com/scul0405/saga-orchestration/cmd/payment/config"
+	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/db/postgres"
+	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/grpc/auth"
+	"github.com/scul0405/saga-orchestration/internal/payment/interface/http"
+	"github.com/scul0405/saga-orchestration/internal/payment/repository/pg_repo"
+	"github.com/scul0405/saga-orchestration/internal/payment/service"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"log"
@@ -23,7 +22,7 @@ const (
 )
 
 func main() {
-	log.Println("Start account service")
+	log.Println("Start order service...")
 
 	cfgFile, err := config.LoadConfig("./config/config")
 	if err != nil {
@@ -38,10 +37,6 @@ func main() {
 	apiLogger := logger.NewApiLogger(&cfg.App)
 	apiLogger.InitLogger()
 	apiLogger.Infof("Service Name: %s, LogLevel: %s, Mode: %s", cfg.App.Service.Name, cfg.App.Logger.Level, cfg.App.Service.Mode)
-
-	doneCh := make(chan struct{}) // for graceful shutdown
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-	defer cancel()
 
 	// connect postgres
 	psqlDB, err := postgres.NewPsqlDB(cfg)
@@ -65,8 +60,7 @@ func main() {
 	apiLogger.Info("Migrations successfully")
 
 	// create repositories
-	customerRepo := postgres_repo.NewCustomerRepositoryImpl(psqlDB)
-	jwtAuthRepo := postgres_repo.NewJwtAuthRepositoryImpl(psqlDB)
+	orderRepo := pg_repo.NewOrderRepository(psqlDB)
 
 	// create sony flake
 	sf, err := sonyflake.NewSonyFlake()
@@ -74,14 +68,20 @@ func main() {
 		apiLogger.Fatal(err)
 	}
 
+	authConn, err := auth.NewAuthConn(cfg)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
+
 	// create services
-	customerService := customersvc.NewCustomerService(customerRepo, apiLogger)
-	authService := authsvc.NewJWTAuthService(cfg.JWTConfig, jwtAuthRepo, apiLogger, sf)
+	paymentSvc := service.NewPaymentService(sf, apiLogger, orderRepo)
+
+	authSvc := auth.NewAuthService(cfg, authConn)
 
 	// create http server
-	engine := porthttp.NewEngine(cfg.HTTP)
-	router := porthttp.NewRouter(authService, customerService)
-	httpServer := porthttp.NewHTTPServer(cfg.HTTP, apiLogger, engine, router)
+	engine := http.NewEngine(cfg.HTTP)
+	router := http.NewRouter(paymentSvc, authSvc)
+	httpServer := http.NewHTTPServer(cfg.HTTP, apiLogger, engine, router)
 
 	// run http server
 	go func() {
@@ -90,15 +90,9 @@ func main() {
 		}
 	}()
 
-	// create grpc server
-	grpcServer := portgrpc.NewGRPCServer(cfg.GRPC, authService)
-
-	// run grpc server
-	go func() {
-		if err := grpcServer.Run(); err != nil {
-			apiLogger.Fatalf("Run grpc server err: %v", err)
-		}
-	}()
+	doneCh := make(chan struct{}) // for graceful shutdown
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
 
 	// graceful shutdown
 	<-ctx.Done()
@@ -111,7 +105,6 @@ func main() {
 			apiLogger.Errorf("httpServer.GracefulStop err: %v", err)
 		}
 
-		grpcServer.GracefulStop()
 		doneCh <- struct{}{}
 	}()
 

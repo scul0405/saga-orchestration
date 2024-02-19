@@ -5,4 +5,4 @@ run_product:
 run_order:
 	cd cmd/order & go run main.go
 run_payment:
-	cd services/payment & go run cmd/api/main.go
+	cd cmd/payment & go run main.go
