@@ -5,8 +5,8 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/scul0405/saga-orchestration/internal/account/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/account/domain/valueobject"
+	"github.com/scul0405/saga-orchestration/pkg/crypto"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
-	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -103,7 +103,7 @@ func TestCreateCustomer(t *testing.T) {
 			Password: "secret",
 		}
 
-		hashedPassword, err := utils.HashPassword(testCustomer.Password)
+		hashedPassword, err := crypto.HashPassword(testCustomer.Password)
 		require.NoError(t, err)
 
 		sqlmock.NewRows([]string{"id", "active", "first_name", "last_name", "email", "address", "phone_number", "password"}).
@@ -164,7 +164,7 @@ func TestGetCustomerCredentials(t *testing.T) {
 			Password: "secret",
 		}
 
-		hashedPassword, err := utils.HashPassword(testCustomer.Password)
+		hashedPassword, err := crypto.HashPassword(testCustomer.Password)
 		require.NoError(t, err)
 
 		rows := sqlmock.NewRows([]string{"id", "active", "email", "password"}).

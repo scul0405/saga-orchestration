@@ -1,8 +1,6 @@
-package postgres
+package pgconn
 
 import (
-	"fmt"
-	"github.com/scul0405/saga-orchestration/cmd/order/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
@@ -15,15 +13,7 @@ const (
 	connMaxLifetime = 120
 )
 
-func NewPsqlDB(c *config.Config) (*gorm.DB, error) {
-	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s",
-		c.Postgres.Host,
-		c.Postgres.Port,
-		c.Postgres.User,
-		c.Postgres.Dbname,
-		c.Postgres.Password,
-	)
-
+func NewPsqlDB(dataSourceName string) (*gorm.DB, error) {
 	gormDb, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 		PrepareStmt:                              true,

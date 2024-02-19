@@ -10,6 +10,7 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/product/repository/pg_repo"
 	"github.com/scul0405/saga-orchestration/internal/product/service"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
+	"github.com/scul0405/saga-orchestration/pkg/pgconn"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"log"
 	"os"
@@ -40,7 +41,7 @@ func main() {
 	apiLogger.Infof("Service Name: %s, LogLevel: %s, Mode: %s", cfg.App.Service.Name, cfg.App.Logger.Level, cfg.App.Service.Mode)
 
 	// connect postgres
-	psqlDB, err := postgres.NewPsqlDB(cfg)
+	psqlDB, err := pgconn.NewPsqlDB(cfg.Postgres.DnsURL)
 	if err != nil {
 		apiLogger.Fatal(err)
 	}

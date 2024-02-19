@@ -10,6 +10,7 @@ import (
 	customersvc "github.com/scul0405/saga-orchestration/internal/account/service/account"
 	authsvc "github.com/scul0405/saga-orchestration/internal/account/service/auth"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
+	"github.com/scul0405/saga-orchestration/pkg/pgconn"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"log"
 	"os"
@@ -44,7 +45,7 @@ func main() {
 	defer cancel()
 
 	// connect postgres
-	psqlDB, err := postgres.NewPsqlDB(cfg)
+	psqlDB, err := pgconn.NewPsqlDB(cfg.Postgres.DnsURL)
 	if err != nil {
 		apiLogger.Fatal(err)
 	}

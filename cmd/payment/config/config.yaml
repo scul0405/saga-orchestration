@@ -24,12 +24,7 @@ logger:
   Level: info
 
 postgres:
-  Host: localhost
-  Port: 5435
-  User: admin
-  Password: secret
-  Dbname: payment_db
-  SslMode: false
+  DNS_URL: "host=localhost port=5435 user=admin password=secret dbname=payment_db sslmode=disable"
 
 migration:
   Enable: true

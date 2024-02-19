@@ -47,12 +47,7 @@ type Logger struct {
 }
 
 type Postgres struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	Dbname   string
-	SSlMode  string
+	DnsURL string `mapstructure:"DNS_URL"`
 }
 
 type Migration struct {

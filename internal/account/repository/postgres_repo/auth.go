@@ -8,7 +8,7 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/account/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/account/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/internal/account/infrastructure/db/postgres/model"
-	"github.com/scul0405/saga-orchestration/pkg/utils"
+	"github.com/scul0405/saga-orchestration/pkg/crypto"
 	"gorm.io/gorm"
 )
 
@@ -49,7 +49,7 @@ func (r *jwtAuthRepositoryImpl) CheckCustomer(ctx context.Context, customerID ui
 }
 
 func (r *jwtAuthRepositoryImpl) CreateCustomer(ctx context.Context, customer *entity.Customer) error {
-	hashedPassword, err := utils.HashPassword(customer.Password)
+	hashedPassword, err := crypto.HashPassword(customer.Password)
 	if err != nil {
 		return err
 	}

@@ -9,9 +9,9 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/account/domain"
 	"github.com/scul0405/saga-orchestration/internal/account/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/account/domain/valueobject"
+	"github.com/scul0405/saga-orchestration/pkg/crypto"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
-	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"time"
 )
 
@@ -99,7 +99,7 @@ func (s *jwtAuthServiceImpl) Login(ctx context.Context, email, password string) 
 		return "", "", ErrCustomerInactive
 	}
 
-	if !utils.CheckPasswordHash(password, customer.Password) {
+	if !crypto.CheckPasswordHash(password, customer.Password) {
 		return "", "", ErrAuthenticationFailed
 	}
 

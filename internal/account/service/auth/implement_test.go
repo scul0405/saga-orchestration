@@ -8,9 +8,9 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/account/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/internal/account/service/mock"
 	"github.com/scul0405/saga-orchestration/pkg/appconfig"
+	"github.com/scul0405/saga-orchestration/pkg/crypto"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
-	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"testing"
@@ -233,7 +233,7 @@ func TestLogin(t *testing.T) {
 
 	password := "secret"
 
-	hashPw, err := utils.HashPassword(password)
+	hashPw, err := crypto.HashPassword(password)
 	require.NoError(t, err)
 	customerCred := &valueobject.CustomerCredentials{
 		CustomerID: customerID,
