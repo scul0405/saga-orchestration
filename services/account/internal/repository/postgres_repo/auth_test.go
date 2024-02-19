@@ -3,9 +3,10 @@ package postgres_repo
 import (
 	"context"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
+	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -42,7 +43,7 @@ func TestCheckCustomer(t *testing.T) {
 
 	authRepo := NewJwtAuthRepositoryImpl(gdb)
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	t.Run("CheckCustomer", func(t *testing.T) {
@@ -80,7 +81,7 @@ func TestCreateCustomer(t *testing.T) {
 
 	authRepo := NewJwtAuthRepositoryImpl(gdb)
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	t.Run("CreateCustomer", func(t *testing.T) {
@@ -102,7 +103,7 @@ func TestCreateCustomer(t *testing.T) {
 			Password: "secret",
 		}
 
-		hashedPassword, err := pkg.HashPassword(testCustomer.Password)
+		hashedPassword, err := utils.HashPassword(testCustomer.Password)
 		require.NoError(t, err)
 
 		sqlmock.NewRows([]string{"id", "active", "first_name", "last_name", "email", "address", "phone_number", "password"}).
@@ -147,7 +148,7 @@ func TestGetCustomerCredentials(t *testing.T) {
 
 	authRepo := NewJwtAuthRepositoryImpl(gdb)
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	t.Run("GetCustomerCredentials", func(t *testing.T) {
@@ -163,7 +164,7 @@ func TestGetCustomerCredentials(t *testing.T) {
 			Password: "secret",
 		}
 
-		hashedPassword, err := pkg.HashPassword(testCustomer.Password)
+		hashedPassword, err := utils.HashPassword(testCustomer.Password)
 		require.NoError(t, err)
 
 		rows := sqlmock.NewRows([]string{"id", "active", "email", "password"}).

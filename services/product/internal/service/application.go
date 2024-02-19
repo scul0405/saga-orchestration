@@ -1,15 +1,15 @@
 package service
 
 import (
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/product/internal/app"
 	"github.com/scul0405/saga-orchestration/services/product/internal/app/command"
 	"github.com/scul0405/saga-orchestration/services/product/internal/app/query"
 	"github.com/scul0405/saga-orchestration/services/product/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/logger"
-	"github.com/scul0405/saga-orchestration/services/product/pkg"
 )
 
-func NewProductService(sf pkg.IDGenerator, logger logger.Logger, productRepo domain.ProductRepository) app.Application {
+func NewProductService(sf sonyflake.IDGenerator, logger logger.Logger, productRepo domain.ProductRepository) app.Application {
 	return app.Application{
 		Commands: app.Commands{
 			CreateProduct:            command.NewCreateProductHandler(sf, logger, productRepo),

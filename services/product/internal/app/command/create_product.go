@@ -2,11 +2,11 @@ package command
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/product/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/product/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/product/internal/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/logger"
-	"github.com/scul0405/saga-orchestration/services/product/pkg"
 )
 
 type CreateProduct struct {
@@ -21,12 +21,12 @@ type CreateProduct struct {
 type CreateProductHandler CommandHandler[CreateProduct]
 
 type createProductHandler struct {
-	sf          pkg.IDGenerator
+	sf          sonyflake.IDGenerator
 	logger      logger.Logger
 	productRepo domain.ProductRepository
 }
 
-func NewCreateProductHandler(sf pkg.IDGenerator, logger logger.Logger, productRepo domain.ProductRepository) CreateProductHandler {
+func NewCreateProductHandler(sf sonyflake.IDGenerator, logger logger.Logger, productRepo domain.ProductRepository) CreateProductHandler {
 	return &createProductHandler{
 		sf:          sf,
 		logger:      logger,

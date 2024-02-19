@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/account/config"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/db/postgres"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
@@ -10,7 +11,6 @@ import (
 	"github.com/scul0405/saga-orchestration/services/account/internal/repository/postgres_repo"
 	customersvc "github.com/scul0405/saga-orchestration/services/account/internal/service/account"
 	authsvc "github.com/scul0405/saga-orchestration/services/account/internal/service/auth"
-	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"log"
 	"os"
 	"os/signal"
@@ -69,7 +69,7 @@ func main() {
 	jwtAuthRepo := postgres_repo.NewJwtAuthRepositoryImpl(psqlDB)
 
 	// create sony flake
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	if err != nil {
 		apiLogger.Fatal(err)
 	}

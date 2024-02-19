@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/product/config"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/db/postgres"
 	"github.com/scul0405/saga-orchestration/services/product/internal/infrastructure/grpc/auth"
@@ -10,7 +11,6 @@ import (
 	"github.com/scul0405/saga-orchestration/services/product/internal/interface/http"
 	"github.com/scul0405/saga-orchestration/services/product/internal/repository/pg_repo"
 	"github.com/scul0405/saga-orchestration/services/product/internal/service"
-	"github.com/scul0405/saga-orchestration/services/product/pkg"
 	"log"
 	"os"
 	"os/signal"
@@ -64,7 +64,7 @@ func main() {
 	productRepo := pg_repo.NewProductRepository(psqlDB)
 
 	// create sony flake
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	if err != nil {
 		apiLogger.Fatal(err)
 	}

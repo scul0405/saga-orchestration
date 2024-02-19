@@ -3,9 +3,9 @@ package postgres_repo
 import (
 	"context"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -42,7 +42,7 @@ func TestGetCustomerPersonalInfo(t *testing.T) {
 
 	customerRepo := NewCustomerRepositoryImpl(gdb)
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	t.Run("GetCustomerPersonalInfo", func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestGetCustomerDeliveryInfo(t *testing.T) {
 
 	customerRepo := NewCustomerRepositoryImpl(gdb)
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	t.Run("GetCustomerDeliveryInfo", func(t *testing.T) {
@@ -133,7 +133,7 @@ func TestUpdateCustomerPersonalInfo(t *testing.T) {
 
 	customerRepo := NewCustomerRepositoryImpl(gdb)
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	t.Run("UpdateCustomerPersonalInfo", func(t *testing.T) {
@@ -176,7 +176,7 @@ func TestUpdateCustomerDeliveryInfo(t *testing.T) {
 
 	customerRepo := NewCustomerRepositoryImpl(gdb)
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	t.Run("UpdateCustomerDeliveryInfo", func(t *testing.T) {

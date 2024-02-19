@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/db/postgres/model"
-	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"gorm.io/gorm"
 )
 
@@ -49,7 +49,7 @@ func (r *jwtAuthRepositoryImpl) CheckCustomer(ctx context.Context, customerID ui
 }
 
 func (r *jwtAuthRepositoryImpl) CreateCustomer(ctx context.Context, customer *entity.Customer) error {
-	hashedPassword, err := pkg.HashPassword(customer.Password)
+	hashedPassword, err := utils.HashPassword(customer.Password)
 	if err != nil {
 		return err
 	}

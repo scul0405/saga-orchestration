@@ -2,12 +2,12 @@ package account
 
 import (
 	"context"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"github.com/scul0405/saga-orchestration/services/account/config"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	"github.com/scul0405/saga-orchestration/services/account/internal/repository/postgres_repo"
 	"github.com/scul0405/saga-orchestration/services/account/internal/service/mock"
-	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"testing"
@@ -16,7 +16,7 @@ import (
 func TestGetPersonalInfo(t *testing.T) {
 	t.Parallel()
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	customerID, err := sf.NextID()
@@ -73,7 +73,7 @@ func TestGetPersonalInfo(t *testing.T) {
 func TestGetDeliveryInfo(t *testing.T) {
 	t.Parallel()
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	customerID, err := sf.NextID()
@@ -130,7 +130,7 @@ func TestGetDeliveryInfo(t *testing.T) {
 func TestUpdatePersonalInfo(t *testing.T) {
 	t.Parallel()
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	customerID, err := sf.NextID()
@@ -191,7 +191,7 @@ func TestUpdatePersonalInfo(t *testing.T) {
 func TestUpdateDeliveryInfo(t *testing.T) {
 	t.Parallel()
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	customerID, err := sf.NextID()

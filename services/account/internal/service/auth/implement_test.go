@@ -3,12 +3,13 @@ package auth
 import (
 	"context"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
+	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/scul0405/saga-orchestration/services/account/config"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
 	"github.com/scul0405/saga-orchestration/services/account/internal/service/mock"
-	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"testing"
@@ -18,7 +19,7 @@ import (
 func TestAuth(t *testing.T) {
 	t.Parallel()
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	cfg := &config.Config{
@@ -121,7 +122,7 @@ func TestAuth(t *testing.T) {
 func TestRegister(t *testing.T) {
 	t.Parallel()
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	cfg := &config.Config{
@@ -196,7 +197,7 @@ func TestRegister(t *testing.T) {
 func TestLogin(t *testing.T) {
 	t.Parallel()
 
-	sf, err := pkg.NewSonyFlake()
+	sf, err := sonyflake.NewSonyFlake()
 	require.NoError(t, err)
 
 	cfg := &config.Config{
@@ -225,7 +226,7 @@ func TestLogin(t *testing.T) {
 
 	password := "secret"
 
-	hashPw, err := pkg.HashPassword(password)
+	hashPw, err := utils.HashPassword(password)
 	require.NoError(t, err)
 	customerCred := &valueobject.CustomerCredentials{
 		CustomerID: customerID,

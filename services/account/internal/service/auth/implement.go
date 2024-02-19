@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
+	"github.com/scul0405/saga-orchestration/pkg/utils"
 	"github.com/scul0405/saga-orchestration/services/account/config"
 	"github.com/scul0405/saga-orchestration/services/account/internal/app"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/entity"
 	"github.com/scul0405/saga-orchestration/services/account/internal/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/services/account/internal/infrastructure/logger"
-	"github.com/scul0405/saga-orchestration/services/account/pkg"
 	"time"
 )
 
@@ -26,11 +27,11 @@ type jwtAuthServiceImpl struct {
 	jwtConfig config.JWTConfig
 	repo      domain.JWTAuthRepository
 	logger    logger.Logger
-	sf        pkg.IDGenerator
+	sf        sonyflake.IDGenerator
 }
 
 // NewJWTAuthService returns a new instance of JWTAuthService
-func NewJWTAuthService(jwtConfig config.JWTConfig, repo domain.JWTAuthRepository, logger logger.Logger, sf pkg.IDGenerator) app.AuthService {
+func NewJWTAuthService(jwtConfig config.JWTConfig, repo domain.JWTAuthRepository, logger logger.Logger, sf sonyflake.IDGenerator) app.AuthService {
 	return &jwtAuthServiceImpl{
 		jwtConfig: jwtConfig,
 		repo:      repo,
@@ -98,7 +99,7 @@ func (s *jwtAuthServiceImpl) Login(ctx context.Context, email, password string) 
 		return "", "", ErrCustomerInactive
 	}
 
-	if !pkg.CheckPasswordHash(password, customer.Password) {
+	if !utils.CheckPasswordHash(password, customer.Password) {
 		return "", "", ErrAuthenticationFailed
 	}
 
