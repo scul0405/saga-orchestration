@@ -1,0 +1,40 @@
+service:
+  Name: payment_service
+  Mode: Development
+  Debug: true
+  ReadTimeout: 5
+  WriteTimeout: 5
+
+http:
+  Port: 8083
+  Mode: debug
+
+grpc:
+  Port: 50054
+  Timeout: 15
+  Time: 5
+  MaxConnectionIdle: 30
+  MaxConnectionAge: 5
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: console
+  Level: info
+
+postgres:
+  Host: localhost
+  Port: 5435
+  User: admin
+  Password: secret
+  Dbname: payment_db
+  SslMode: false
+
+migration:
+  Enable: true
+  Recreate: false
+
+rpcEndpoints:
+  authSvc: ":50051"
+  productSvc: ":50052"
