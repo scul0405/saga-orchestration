@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/scul0405/saga-orchestration/internal/account/app"
-	"github.com/scul0405/saga-orchestration/internal/account/ports/http/dto"
+	"github.com/scul0405/saga-orchestration/internal/account/interface/http/dto"
 	"github.com/scul0405/saga-orchestration/internal/account/repository/postgres_repo"
 	"github.com/scul0405/saga-orchestration/internal/account/service/auth"
 	"net/http"

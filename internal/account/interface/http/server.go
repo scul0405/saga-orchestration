@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/scul0405/saga-orchestration/cmd/account/config"
-	"github.com/scul0405/saga-orchestration/internal/account/ports/http/middleware"
+	"github.com/scul0405/saga-orchestration/internal/account/interface/http/middleware"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"net/http"
 )
