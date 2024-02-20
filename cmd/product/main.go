@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"github.com/scul0405/saga-orchestration/cmd/product/config"
+	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/db/postgres"
-	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/grpc/auth"
+	grpcclient "github.com/scul0405/saga-orchestration/internal/product/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/product/interface/grpc"
 	"github.com/scul0405/saga-orchestration/internal/product/interface/http"
 	"github.com/scul0405/saga-orchestration/internal/product/repository/pg_repo"
@@ -73,11 +74,11 @@ func main() {
 	// create services
 	productSvc := service.NewProductService(sf, apiLogger, productRepo)
 
-	authConn, err := auth.NewAuthConn(cfg)
+	authConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.AuthSvc)
 	if err != nil {
 		apiLogger.Fatal(err)
 	}
-	authSvc := service.NewAuthService(cfg, authConn)
+	authSvc := grpcclient.NewAuthService(authConn)
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)

@@ -4,11 +4,11 @@ import (
 	"context"
 	"github.com/scul0405/saga-orchestration/cmd/order/config"
 	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/db/postgres"
-	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc/auth"
-	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc/product"
+	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/order/interface/http"
 	"github.com/scul0405/saga-orchestration/internal/order/repository/pg_repo"
 	"github.com/scul0405/saga-orchestration/internal/order/service"
+	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/pgconn"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
@@ -71,21 +71,20 @@ func main() {
 	}
 
 	// Create connection
-	productConn, err := product.NewProductConn(cfg)
+	productClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.ProductSvc)
 	if err != nil {
 		apiLogger.Fatal(err)
 	}
+	productSvc := grpc.NewProductService(productClientConn)
 
-	authConn, err := auth.NewAuthConn(cfg)
+	authClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.AuthSvc)
 	if err != nil {
 		apiLogger.Fatal(err)
 	}
+	authSvc := grpc.NewAuthService(authClientConn)
 
 	// create services
-	productSvc := product.NewProductService(cfg, productConn)
 	orderSvc := service.NewOrderService(sf, apiLogger, orderRepo, productSvc)
-
-	authSvc := auth.NewAuthService(cfg, authConn)
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)

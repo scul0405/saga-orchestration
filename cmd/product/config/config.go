@@ -14,7 +14,7 @@ type Config struct {
 	GRPC        GRPC
 	Postgres    Postgres
 	Migration   Migration
-	RpcEnpoints RpcEndpoints
+	RpcEnpoints RpcEndpoints `mapstructure:"rpcEndpoints"`
 }
 
 type HTTP struct {

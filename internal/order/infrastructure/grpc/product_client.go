@@ -1,17 +1,27 @@
-package product
+package grpc
 
 import (
 	"context"
+	"github.com/go-kit/kit/endpoint"
 	"github.com/scul0405/saga-orchestration/internal/order/domain/valueobject"
+	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	pb "github.com/scul0405/saga-orchestration/proto"
 )
 
-func encodeProductRequest(_ context.Context, request interface{}) (interface{}, error) {
-	return request, nil
+type ProductService interface {
+	GetProducts(ctx context.Context, productIDs *[]uint64) (*[]valueobject.DetailedPurchasedProduct, error)
 }
 
-func decodeProductResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	return grpcReply, nil
+type productServiceImpl struct {
+	product endpoint.Endpoint
+}
+
+func NewProductService(conn *grpcconn.GRPCClientConn) ProductService {
+	productSvc := grpcconn.NewGRPCClient("product.ProductService", "GetProducts", conn)
+
+	return &productServiceImpl{
+		product: productSvc,
+	}
 }
 
 func (s *productServiceImpl) GetProducts(ctx context.Context, productIDs *[]uint64) (*[]valueobject.DetailedPurchasedProduct, error) {

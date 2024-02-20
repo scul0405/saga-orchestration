@@ -1,9 +1,8 @@
-package auth
+package grpcconn
 
 import (
 	"context"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
-	"github.com/scul0405/saga-orchestration/cmd/product/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -11,11 +10,11 @@ import (
 	"time"
 )
 
-type AuthConn struct {
+type GRPCClientConn struct {
 	Conn *grpc.ClientConn
 }
 
-func NewAuthConn(cfg *config.Config) (*AuthConn, error) {
+func NewGRPCClientConn(endpoint string) (*GRPCClientConn, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
@@ -38,12 +37,12 @@ func NewAuthConn(cfg *config.Config) (*AuthConn, error) {
 		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(retryOpts...)),
 	}
 
-	conn, err := grpc.DialContext(ctx, ":50051", dialOpts...)
+	conn, err := grpc.DialContext(ctx, endpoint, dialOpts...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &AuthConn{
+	return &GRPCClientConn{
 		Conn: conn,
 	}, nil
 }

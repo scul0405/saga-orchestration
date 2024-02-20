@@ -1,17 +1,27 @@
-package auth
+package grpc
 
 import (
 	"context"
+	"github.com/go-kit/kit/endpoint"
 	"github.com/scul0405/saga-orchestration/internal/order/domain/valueobject"
+	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	pb "github.com/scul0405/saga-orchestration/proto"
 )
 
-func encodeAuthRequest(_ context.Context, request interface{}) (interface{}, error) {
-	return request, nil
+type AuthService interface {
+	Auth(ctx context.Context, accessToken string) (*valueobject.AuthResponse, error)
 }
 
-func decodeAuthResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	return grpcReply, nil
+type authServiceImpl struct {
+	auth endpoint.Endpoint
+}
+
+func NewAuthService(conn *grpcconn.GRPCClientConn) AuthService {
+	authSvc := grpcconn.NewGRPCClient("auth.AuthService", "Auth", conn)
+
+	return &authServiceImpl{
+		auth: authSvc,
+	}
 }
 
 func (svc *authServiceImpl) Auth(ctx context.Context, accessToken string) (*valueobject.AuthResponse, error) {

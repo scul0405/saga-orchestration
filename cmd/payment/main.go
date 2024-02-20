@@ -4,10 +4,11 @@ import (
 	"context"
 	"github.com/scul0405/saga-orchestration/cmd/payment/config"
 	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/db/postgres"
-	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/grpc/auth"
+	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/payment/interface/http"
 	"github.com/scul0405/saga-orchestration/internal/payment/repository/pg_repo"
 	"github.com/scul0405/saga-orchestration/internal/payment/service"
+	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/pgconn"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
@@ -69,15 +70,15 @@ func main() {
 		apiLogger.Fatal(err)
 	}
 
-	authConn, err := auth.NewAuthConn(cfg)
+	// connect to other services
+	authClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.AuthSvc)
 	if err != nil {
 		apiLogger.Fatal(err)
 	}
+	authSvc := grpc.NewAuthService(authClientConn)
 
 	// create services
 	paymentSvc := service.NewPaymentService(sf, apiLogger, orderRepo)
-
-	authSvc := auth.NewAuthService(cfg, authConn)
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)
