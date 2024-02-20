@@ -1,0 +1,35 @@
+service:
+  Name: order_service
+  Mode: Development
+  Debug: true
+  ReadTimeout: 5
+  WriteTimeout: 5
+
+http:
+  Port: 8082
+  Mode: debug
+
+grpc:
+  Port: 50053
+  Timeout: 15
+  Time: 5
+  MaxConnectionIdle: 30
+  MaxConnectionAge: 5
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: console
+  Level: info
+
+postgres:
+  DNS_URL: "host=localhost port=5434 user=admin password=secret dbname=order_db sslmode=disable"
+
+migration:
+  Enable: true
+  Recreate: false
+
+rpcEndpoints:
+  authSvc: ":50051"
+  productSvc: ":50052"

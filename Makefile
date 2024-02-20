@@ -1,6 +1,8 @@
 run_account:
-	cd services/account & go run cmd/api/main.go
+	cd cmd/account & go run main.go
 run_product:
-	cd services/product & go run cmd/api/main.go
+	cd cmd/product & go run main.go
 run_order:
-	cd services/order & go run cmd/api/main.go
+	cd cmd/order & go run main.go
+run_payment:
+	cd cmd/payment & go run main.go
