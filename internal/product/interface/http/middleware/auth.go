@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/scul0405/saga-orchestration/internal/product/service"
+	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"net/http"
 )
@@ -12,11 +12,11 @@ const (
 )
 
 type JWTAuthMW struct {
-	authSvc service.AuthService
+	authSvc grpc.AuthService
 	logger  logger.Logger
 }
 
-func NewJWTAuthMW(authSvc service.AuthService, logger logger.Logger) *JWTAuthMW {
+func NewJWTAuthMW(authSvc grpc.AuthService, logger logger.Logger) *JWTAuthMW {
 	return &JWTAuthMW{
 		authSvc: authSvc,
 		logger:  logger,
