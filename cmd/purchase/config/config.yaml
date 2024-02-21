@@ -1,0 +1,21 @@
+service:
+  Name: purchase_service
+  Mode: Development
+  Debug: true
+  ReadTimeout: 5
+  WriteTimeout: 5
+
+http:
+  Port: 8084
+  Mode: debug
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: console
+  Level: info
+
+rpcEndpoints:
+  authSvc: ":50051"
+  productSvc: ":50052"

@@ -24,7 +24,7 @@ const (
 )
 
 func main() {
-	log.Println("Start order service...")
+	log.Println("Start payment service...")
 
 	cfgFile, err := config.LoadConfig("./config/config")
 	if err != nil {
