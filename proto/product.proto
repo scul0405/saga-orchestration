@@ -21,7 +21,8 @@ enum Status {
 
 message ProductStatus {
   uint64 product_id = 1;
-  Status status = 2;
+  uint64 price = 2;
+  Status status = 3;
 }
 
 message CheckProductsResponse {
