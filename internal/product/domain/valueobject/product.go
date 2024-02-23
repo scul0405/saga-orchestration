@@ -17,6 +17,7 @@ type PurchasedProduct struct {
 // ProductStatus value object
 type ProductStatus struct {
 	ID     uint64
+	Price  uint64
 	Status bool
 }
 

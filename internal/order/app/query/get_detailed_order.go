@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/scul0405/saga-orchestration/internal/order/domain"
 	"github.com/scul0405/saga-orchestration/internal/order/domain/valueobject"
-	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc/product"
+	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 )
 
@@ -17,10 +17,10 @@ type GetDetailedOrderHandler QueryHandler[GetDetailedOrder, *valueobject.Detaile
 type getDetailedOrderHandler struct {
 	logger     logger.Logger
 	orderRepo  domain.OrderRepository
-	productSvc product.ProductService
+	productSvc grpc.ProductService
 }
 
-func NewGetDetailedOrderHandler(logger logger.Logger, orderRepo domain.OrderRepository, productSvc product.ProductService) GetDetailedOrderHandler {
+func NewGetDetailedOrderHandler(logger logger.Logger, orderRepo domain.OrderRepository, productSvc grpc.ProductService) GetDetailedOrderHandler {
 	return &getDetailedOrderHandler{
 		logger:     logger,
 		orderRepo:  orderRepo,

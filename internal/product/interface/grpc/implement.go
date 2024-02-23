@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/scul0405/saga-orchestration/internal/product/app/query"
+	"github.com/scul0405/saga-orchestration/internal/product/domain/valueobject"
 	pb "github.com/scul0405/saga-orchestration/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,7 +33,8 @@ func (srv *Server) CheckProducts(ctx context.Context, req *pb.CheckProductsReque
 	for i, productStatus := range *productStatuses {
 		pbProductStatuses[i] = &pb.ProductStatus{
 			ProductId: productStatus.ID,
-			Status:    getPBStatus(productStatus.Status),
+			Status:    getPBStatus(productStatus),
+			Price:     productStatus.Price,
 		}
 	}
 
@@ -72,13 +74,14 @@ func (srv *Server) GetProducts(ctx context.Context, req *pb.GetProductsRequest) 
 	}, nil
 }
 
-func getPBStatus(status bool) pb.Status {
-	switch status {
-	case true:
+func getPBStatus(productStatus valueobject.ProductStatus) pb.Status {
+	if productStatus.Status {
 		return pb.Status_OK
-	case false:
+	}
+
+	if productStatus.Price == 0 {
 		return pb.Status_NOT_FOUND
 	}
 
-	return pb.Status_INTERNAL_ERROR
+	return pb.Status_NOT_ENOUGH
 }

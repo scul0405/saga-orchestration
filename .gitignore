@@ -21,3 +21,6 @@ main
 .idea
 vendor
 pgdata
+
+# Kafka data
+data

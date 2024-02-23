@@ -26,12 +26,25 @@ func NewProductRepository(db *gorm.DB) domain.ProductRepository {
 	return &productRepositoryImpl{db: db}
 }
 
-func (r *productRepositoryImpl) CheckProduct(ctx context.Context, productID uint64) (bool, error) {
-	var count int64
-	if err := r.db.Model(&model.Product{}).Where("id = ?", productID).Count(&count).Error; err != nil {
-		return false, err
+func (r *productRepositoryImpl) CheckProduct(ctx context.Context, productID uint64) (*valueobject.ProductStatus, error) {
+	var productStatus model.Product
+	if err := r.db.Model(&model.Product{}).Where("id = ?", productID).Select("id", "price", "inventory").First(&productStatus).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &valueobject.ProductStatus{
+				ID:     productID,
+				Status: false,
+				Price:  0,
+			}, nil
+		}
+
+		return nil, err
 	}
-	return count > 0, nil
+
+	return &valueobject.ProductStatus{
+		ID:     productStatus.ID,
+		Price:  productStatus.Price,
+		Status: productStatus.Inventory > 0,
+	}, nil
 }
 
 func (r *productRepositoryImpl) GetProductDetail(ctx context.Context, productID uint64) (*valueobject.ProductDetail, error) {

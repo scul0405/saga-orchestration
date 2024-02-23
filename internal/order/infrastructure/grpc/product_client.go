@@ -17,7 +17,7 @@ type productServiceImpl struct {
 }
 
 func NewProductService(conn *grpcconn.GRPCClientConn) ProductService {
-	productSvc := grpcconn.NewGRPCClient("product.ProductService", "GetProducts", conn)
+	productSvc := grpcconn.NewGRPCClient("product.ProductService", "GetProducts", conn, &pb.GetProductsResponse{})
 
 	return &productServiceImpl{
 		product: productSvc,

@@ -34,8 +34,9 @@ func (h *checkProductsHandler) Handle(ctx context.Context, query CheckProducts) 
 			return nil, err
 		}
 		productStatuses[i] = valueobject.ProductStatus{
-			ID:     productID,
-			Status: status,
+			ID:     status.ID,
+			Status: status.Status,
+			Price:  status.Price,
 		}
 	}
 

@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/scul0405/saga-orchestration/internal/order/app"
 	"github.com/scul0405/saga-orchestration/internal/order/app/query"
-	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc/auth"
+	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/order/interface/http/dto"
 	"net/http"
 	"strconv"
@@ -21,10 +21,10 @@ var (
 
 type Router struct {
 	app     app.Application
-	authSvc auth.AuthService
+	authSvc grpc.AuthService
 }
 
-func NewRouter(app app.Application, authSvc auth.AuthService) *Router {
+func NewRouter(app app.Application, authSvc grpc.AuthService) *Router {
 	return &Router{
 		app:     app,
 		authSvc: authSvc,
