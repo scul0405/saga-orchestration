@@ -5,8 +5,8 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/product/app"
 	"github.com/scul0405/saga-orchestration/internal/product/app/command"
 	"github.com/scul0405/saga-orchestration/internal/product/app/query"
+	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/product/interface/http/dto"
-	"github.com/scul0405/saga-orchestration/internal/product/service"
 	"net/http"
 	"strconv"
 )
@@ -21,10 +21,10 @@ var (
 
 type Router struct {
 	app     app.Application
-	authSvc service.AuthService
+	authSvc grpc.AuthService
 }
 
-func NewRouter(app app.Application, authSvc service.AuthService) *Router {
+func NewRouter(app app.Application, authSvc grpc.AuthService) *Router {
 	return &Router{
 		app:     app,
 		authSvc: authSvc,

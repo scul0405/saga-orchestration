@@ -17,7 +17,7 @@ type authServiceImpl struct {
 }
 
 func NewAuthService(conn *grpcconn.GRPCClientConn) AuthService {
-	authSvc := grpcconn.NewGRPCClient("auth.AuthService", "Auth", conn)
+	authSvc := grpcconn.NewGRPCClient("auth.AuthService", "Auth", conn, &pb.AuthResponse{})
 
 	return &authServiceImpl{
 		auth: authSvc,

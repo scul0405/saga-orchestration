@@ -4,7 +4,6 @@ import (
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/transport/grpc"
-	pb "github.com/scul0405/saga-orchestration/proto"
 	"github.com/sony/gobreaker"
 	"time"
 )
@@ -13,7 +12,7 @@ const (
 	timeout = 5 * time.Second
 )
 
-func NewGRPCClient(svcName string, methodName string, conn *GRPCClientConn) endpoint.Endpoint {
+func NewGRPCClient[GRPCReply any](svcName string, methodName string, conn *GRPCClientConn, reply GRPCReply) endpoint.Endpoint {
 	var opts []grpc.ClientOption
 
 	var grpcEndpoint endpoint.Endpoint
@@ -24,7 +23,7 @@ func NewGRPCClient(svcName string, methodName string, conn *GRPCClientConn) endp
 			methodName,
 			encodeGRPCRequest,
 			decodeGRPCResponse,
-			&pb.AuthResponse{},
+			reply,
 			append(opts, grpc.ClientBefore(grpc.SetRequestHeader("Service-Name", svcName)))...,
 		).Endpoint()
 
