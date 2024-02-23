@@ -12,5 +12,6 @@ const (
 
 type ProductStatus struct {
 	ProductID uint64
+	Price     uint64
 	Status    Status
 }
