@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    container_name: zookeeper
+    restart: always
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: zoo1:2888:3888
+    volumes:
+      - ./data/zookeeper/data:/data
+      - ./data/zookeeper/datalog:/datalog
+    networks:
+      - api_network
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.3.2
+    hostname: kafka
+    ports:
+      - "9091:9091"
+      - "29091:29091"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:19091,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9091,DOCKER://host.docker.internal:29091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+    volumes:
+      - ./data/kafka/data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+        - api_network
+
+  kafdrop:
+    container_name: kafdrop
+    image: obsidiandynamics/kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29091
+    depends_on:
+      - kafka
+    networks:
+      - api_network
+
+networks:
+  api_network:
+    driver: bridge
