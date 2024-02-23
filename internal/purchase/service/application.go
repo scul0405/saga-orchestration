@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/scul0405/saga-orchestration/internal/purchase/app"
 	"github.com/scul0405/saga-orchestration/internal/purchase/app/command"
+	"github.com/scul0405/saga-orchestration/internal/purchase/app/query"
 	"github.com/scul0405/saga-orchestration/internal/purchase/eventhandler"
 	"github.com/scul0405/saga-orchestration/internal/purchase/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
@@ -13,6 +14,9 @@ func NewPurchaseService(sf sonyflake.IDGenerator, logger logger.Logger, productS
 	return app.Application{
 		Commands: app.Commands{
 			CreatePurchase: command.NewCreatePurchaseHandler(sf, logger, productSvc, evPub),
+		},
+		Queries: app.Queries{
+			CheckProducts: query.NewCheckProductsHandler(logger, productSvc),
 		},
 	}
 }

@@ -17,7 +17,6 @@ type CreatePurchase struct {
 }
 
 type Order struct {
-	ID         uint64
 	CustomerID uint64
 	OrderItems *[]OrderItem
 }
@@ -63,16 +62,9 @@ func (h *createPurchaseHandler) Handle(ctx context.Context, cmd CreatePurchase) 
 		}
 	}
 
-	productStatuses, err := h.productSvc.CheckProducts(ctx, &orderItems)
-
 	purchaseID, err := h.sf.NextID()
 	if err != nil {
 		return err
-	}
-
-	var amount uint64
-	for i, item := range *productStatuses {
-		amount += (*cmd.Order.OrderItems)[i].Quantity * item.Price
 	}
 
 	aggOrderItems := make([]entity.OrderItem, len(*cmd.Order.OrderItems))
@@ -86,12 +78,12 @@ func (h *createPurchaseHandler) Handle(ctx context.Context, cmd CreatePurchase) 
 	purchase := &aggregate.Purchase{
 		ID: purchaseID,
 		Order: &entity.Order{
-			ID:         cmd.Order.ID,
+			CustomerID: cmd.Order.CustomerID,
 			OrderItems: &aggOrderItems,
 		},
 		Payment: &valueobject.Payment{
 			CurrencyCode: cmd.Payment.CurrencyCode,
-			Amount:       amount,
+			Amount:       cmd.Payment.Amount,
 		},
 	}
 
