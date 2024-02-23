@@ -36,7 +36,8 @@ type Logger struct {
 }
 
 type RpcEndpoints struct {
-	AuthSvc string
+	AuthSvc    string
+	ProductSvc string
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

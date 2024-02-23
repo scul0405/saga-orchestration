@@ -36,6 +36,26 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
+	//// create sony flake
+	//sf, err := sonyflake.NewSonyFlake()
+	//if err != nil {
+	//	apiLogger.Fatal(err)
+	//}
+	//
+	//// Create connection
+	//productClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.ProductSvc)
+	//if err != nil {
+	//	apiLogger.Fatal(err)
+	//}
+	//productSvc := grpc.NewProductService(productClientConn)
+	//
+	//producer := kafkaClient.NewProducer(apiLogger, []string{"localhost:9091"}, common.PurchaseTopic)
+	//
+	//// Create event publisher
+	//evPub := eventhandler.NewPurchaseEventHandler(producer)
+	//
+	//purchaseSvc := service.NewPurchaseService(sf, apiLogger, productSvc, evPub)
+
 	// graceful shutdown
 	<-ctx.Done()
 	go func() {
