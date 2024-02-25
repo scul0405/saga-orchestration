@@ -12,6 +12,7 @@ type Config struct {
 	App         appconfig.App
 	HTTP        HTTP
 	RpcEnpoints RpcEndpoints `mapstructure:"rpcEndpoints"`
+	Kafka       Kafka
 }
 
 type Service struct {
@@ -38,6 +39,10 @@ type Logger struct {
 type RpcEndpoints struct {
 	AuthSvc    string
 	ProductSvc string
+}
+
+type Kafka struct {
+	Brokers []string
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/scul0405/saga-orchestration/internal/common"
-	"github.com/scul0405/saga-orchestration/internal/purchase/domain/aggregate"
 	kafkaClient "github.com/scul0405/saga-orchestration/pkg/kafka"
+	pb "github.com/scul0405/saga-orchestration/proto"
 	"github.com/segmentio/kafka-go"
 )
 
 type PurchaseEventHandler interface {
-	CreatePurchase(ctx context.Context, purchase *aggregate.Purchase) error
+	ProduceCreatePurchase(ctx context.Context, purchase *pb.CreatePurchaseRequest) error
 }
 
 type purchaseEventHandler struct {
@@ -23,7 +23,7 @@ func NewPurchaseEventHandler(producer kafkaClient.Producer) PurchaseEventHandler
 	}
 }
 
-func (h *purchaseEventHandler) CreatePurchase(ctx context.Context, purchase *aggregate.Purchase) error {
+func (h *purchaseEventHandler) ProduceCreatePurchase(ctx context.Context, purchase *pb.CreatePurchaseRequest) error {
 	purchaseByte, _ := json.Marshal(purchase)
 	msg := kafka.Message{
 		Topic: common.PurchaseTopic,

@@ -63,7 +63,7 @@ func main() {
 	}
 	authSvc := grpc.NewAuthService(authClientConn)
 
-	producer := kafkaClient.NewProducer(apiLogger, []string{"localhost:9091"}, common.PurchaseTopic)
+	producer := kafkaClient.NewProducer(apiLogger, cfg.Kafka.Brokers, common.PurchaseTopic)
 
 	// Create event publisher
 	evPub := eventhandler.NewPurchaseEventHandler(producer)

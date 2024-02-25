@@ -28,7 +28,7 @@ func NewConsumerGroup(brokers []string, groupID string, topic string, log logger
 }
 
 func (c *consumerGroup) GetNewKafkaReader(kafkaURL []string, topic, groupID string) *kafka.Reader {
-	return NewKafkaReader(kafkaURL, groupID, topic)
+	return NewKafkaReader(kafkaURL, topic, groupID)
 }
 
 func (c *consumerGroup) GetNewKafkaWriter() *kafka.Writer {
