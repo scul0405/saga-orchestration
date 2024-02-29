@@ -2,13 +2,14 @@ package command
 
 import (
 	"context"
-	"github.com/scul0405/saga-orchestration/internal/purchase/domain/aggregate"
 	"github.com/scul0405/saga-orchestration/internal/purchase/domain/entity"
-	"github.com/scul0405/saga-orchestration/internal/purchase/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/internal/purchase/eventhandler"
 	"github.com/scul0405/saga-orchestration/internal/purchase/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
+	pb "github.com/scul0405/saga-orchestration/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
 type CreatePurchase struct {
@@ -67,25 +68,28 @@ func (h *createPurchaseHandler) Handle(ctx context.Context, cmd CreatePurchase) 
 		return err
 	}
 
-	aggOrderItems := make([]entity.OrderItem, len(*cmd.Order.OrderItems))
+	pbPurchaseOrderItem := make([]*pb.PurchaseOrderItem, len(*cmd.Order.OrderItems))
 	for i, item := range *cmd.Order.OrderItems {
-		aggOrderItems[i] = entity.OrderItem{
-			ID:       item.ID,
-			Quantity: item.Quantity,
+		pbPurchaseOrderItem[i] = &pb.PurchaseOrderItem{
+			ProductId: item.ID,
+			Quantity:  item.Quantity,
 		}
 	}
 
-	purchase := &aggregate.Purchase{
-		ID: purchaseID,
-		Order: &entity.Order{
-			CustomerID: cmd.Order.CustomerID,
-			OrderItems: &aggOrderItems,
+	purchase := &pb.CreatePurchaseRequest{
+		PurchaseId: purchaseID,
+		Purchase: &pb.Purchase{
+			Order: &pb.Order{
+				CustomerId: cmd.Order.CustomerID,
+				OrderItems: pbPurchaseOrderItem,
+			},
+			Payment: &pb.Payment{
+				CurrencyCode: cmd.Payment.CurrencyCode,
+				Amount:       cmd.Payment.Amount,
+			},
 		},
-		Payment: &valueobject.Payment{
-			CurrencyCode: cmd.Payment.CurrencyCode,
-			Amount:       cmd.Payment.Amount,
-		},
+		Timestamp: timestamppb.New(time.Now()),
 	}
 
-	return h.evPub.CreatePurchase(ctx, purchase)
+	return h.evPub.ProduceCreatePurchase(ctx, purchase)
 }
