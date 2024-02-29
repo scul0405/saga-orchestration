@@ -9,7 +9,12 @@ import (
 
 type UpdateProductInventory struct {
 	IdempotencyKey    uint64
-	PurchasedProducts *[]valueobject.PurchasedProduct
+	PurchasedProducts *[]PurchasedProduct
+}
+
+type PurchasedProduct struct {
+	ID       uint64
+	Quantity uint64
 }
 
 type UpdateProductInventoryHandler CommandHandler[UpdateProductInventory]
@@ -27,7 +32,14 @@ func NewUpdateProductInventoryHandler(logger logger.Logger, productRepo domain.P
 }
 
 func (h *updateProductInventoryHandler) Handle(ctx context.Context, cmd UpdateProductInventory) error {
-	err := h.productRepo.UpdateProductInventory(ctx, cmd.IdempotencyKey, cmd.PurchasedProducts)
+	purchaseProducts := make([]valueobject.PurchasedProduct, len(*cmd.PurchasedProducts))
+	for i, p := range *cmd.PurchasedProducts {
+		purchaseProducts[i] = valueobject.PurchasedProduct{
+			ID:       p.ID,
+			Quantity: p.Quantity,
+		}
+	}
+	err := h.productRepo.UpdateProductInventory(ctx, cmd.IdempotencyKey, &purchaseProducts)
 
 	if err != nil {
 		return err
