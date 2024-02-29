@@ -1,11 +1,24 @@
 package common
 
 var (
+	HandlerHeader = "handler"
+
 	// PurchaseTopic is the subscribed topic for new purchase
-	PurchaseTopic = "purchase"
+	PurchaseTopic   = "purchase"
+	PurchaseGroupID = "purchase-group"
 	// PurchaseResultTopic is the topic to which we publish new purchase result
-	PurchaseResultTopic = "purchase.result"
+	PurchaseResultTopic = "purchase-result"
+
+	// UpdateProductInventoryTopic is the topic to which we publish update product inventory
+	UpdateProductInventoryTopic   = "update-product-inventory"
+	UpdateProductInventoryGroupID = "update-product-inventory-group"
+	UpdateProductInventoryHandler = "update-product-inventory-handler"
+	RollbackProductInventoryTopic = "rollback-product-inventory"
+
+	// CreateOrderTopic is the topic to which we publish create order
+	CreateOrderTopic = "create-order"
 
 	// ReplyTopic is saga step reply topic
-	ReplyTopic = "reply"
+	ReplyTopic   = "reply"
+	ReplyGroupID = "reply-group"
 )

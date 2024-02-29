@@ -11,20 +11,18 @@ import (
 type Worker func(ctx context.Context, r *kafka.Reader, wg *sync.WaitGroup, workerID int)
 
 type ConsumerGroup interface {
-	ConsumeTopic(ctx context.Context, poolSize int, worker Worker)
+	ConsumeTopic(ctx context.Context, poolSize int, groupID string, topic string, worker Worker)
 	GetNewKafkaReader(kafkaURL []string, topic, groupID string) *kafka.Reader
 	GetNewKafkaWriter() *kafka.Writer
 }
 
 type consumerGroup struct {
 	Brokers []string
-	GroupID string
-	Topic   string
 	log     logger.Logger
 }
 
-func NewConsumerGroup(brokers []string, groupID string, topic string, log logger.Logger) ConsumerGroup {
-	return &consumerGroup{Brokers: brokers, GroupID: groupID, Topic: topic, log: log}
+func NewConsumerGroup(brokers []string, log logger.Logger) ConsumerGroup {
+	return &consumerGroup{Brokers: brokers, log: log}
 }
 
 func (c *consumerGroup) GetNewKafkaReader(kafkaURL []string, topic, groupID string) *kafka.Reader {
@@ -35,8 +33,8 @@ func (c *consumerGroup) GetNewKafkaWriter() *kafka.Writer {
 	return NewKafkaWriter(c.Brokers)
 }
 
-func (c *consumerGroup) ConsumeTopic(ctx context.Context, poolSize int, worker Worker) {
-	r := c.GetNewKafkaReader(c.Brokers, c.Topic, c.GroupID)
+func (c *consumerGroup) ConsumeTopic(ctx context.Context, poolSize int, groupID string, topic string, worker Worker) {
+	r := c.GetNewKafkaReader(c.Brokers, topic, groupID)
 
 	defer func() {
 		if err := r.Close(); err != nil {
@@ -44,7 +42,7 @@ func (c *consumerGroup) ConsumeTopic(ctx context.Context, poolSize int, worker W
 		}
 	}()
 
-	c.log.Infof("(Starting consumer groupID): GroupID %s, topic: %+v, poolSize: %v", c.GroupID, c.Topic, poolSize)
+	c.log.Infof("(Starting consumer groupID): GroupID %s, topic: %+v, poolSize: %v", groupID, topic, poolSize)
 
 	wg := &sync.WaitGroup{}
 	for i := 0; i <= poolSize; i++ {

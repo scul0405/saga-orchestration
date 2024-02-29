@@ -32,3 +32,6 @@ migration:
 
 rpcEndpoints:
   authSvc: "localhost:50051"
+
+kafka:
+  Brokers: ["localhost:9091"]

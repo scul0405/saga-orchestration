@@ -149,7 +149,7 @@ func (r *productRepositoryImpl) UpdateProductInventory(ctx context.Context, idem
 	if err := r.db.Model(&model.Idempotency{}).Where("id = ?", idempotencyKey).Count(&count).WithContext(ctx).Error; err != nil {
 		return err
 	}
-	if count == 0 {
+	if count != 0 {
 		return ErrInvalidIdempotency
 	}
 

@@ -15,6 +15,7 @@ type Config struct {
 	Postgres    Postgres
 	Migration   Migration
 	RpcEnpoints RpcEndpoints `mapstructure:"rpcEndpoints"`
+	Kafka       Kafka
 }
 
 type HTTP struct {
@@ -41,6 +42,10 @@ type Migration struct {
 
 type RpcEndpoints struct {
 	AuthSvc string
+}
+
+type Kafka struct {
+	Brokers []string
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {
