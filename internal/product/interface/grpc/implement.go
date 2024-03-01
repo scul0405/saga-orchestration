@@ -12,14 +12,15 @@ import (
 
 func (srv *Server) CheckProducts(ctx context.Context, req *pb.CheckProductsRequest) (*pb.CheckProductsResponse, error) {
 	items := req.GetItems()
-	productIds := make([]uint64, len(items))
+	productIds := make([]query.CheckItem, len(items))
 
 	for i, item := range items {
-		productIds[i] = item.GetProductId()
+		productIds[i].ProductID = item.GetProductId()
+		productIds[i].Quantity = item.GetQuantity()
 	}
 
 	productStatuses, err := srv.app.Queries.CheckProducts.Handle(ctx, query.CheckProducts{
-		ProductIDs: &productIds,
+		Items: &productIds,
 	})
 	if err != nil {
 		return nil, status.Errorf(

@@ -9,7 +9,12 @@ import (
 
 type RollbackProductInventory struct {
 	IdempotencyKey    uint64
-	PurchasedProducts *[]valueobject.PurchasedProduct
+	PurchasedProducts *[]PurchasedProduct
+}
+
+type PurchaseProduct struct {
+	ID       uint64
+	Quantity uint64
 }
 
 type RollbackProductInventoryHandler CommandHandler[RollbackProductInventory]
@@ -27,7 +32,14 @@ func NewRollbackProductInventoryHandler(logger logger.Logger, productRepo domain
 }
 
 func (h *rollbackProductInventoryHandler) Handle(ctx context.Context, cmd RollbackProductInventory) error {
-	err := h.productRepo.RollbackProductInventory(ctx, cmd.IdempotencyKey, cmd.PurchasedProducts)
+	purchasedProducts := make([]valueobject.PurchasedProduct, len(*cmd.PurchasedProducts))
+	for i, item := range *cmd.PurchasedProducts {
+		purchasedProducts[i] = valueobject.PurchasedProduct{
+			ID:       item.ID,
+			Quantity: item.Quantity,
+		}
+	}
+	err := h.productRepo.RollbackProductInventory(ctx, cmd.IdempotencyKey, &purchasedProducts)
 
 	if err != nil {
 		return err
