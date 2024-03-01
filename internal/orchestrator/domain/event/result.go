@@ -10,8 +10,8 @@ var (
 	StatusExecute        = "EXUCUTE"
 	StatusSucess         = "SUCCESS"
 	StatusFailed         = "FAILED"
-	StatusRollbacked     = "ROLLBACKED"
-	StatusRollbackFailed = "ROLLBACK_FAIL"
+	StatusRollback       = "ROLLBACK"
+	StatusRollbackFailed = "ROLLBACK_FAILED"
 )
 
 // PurchaseResult event

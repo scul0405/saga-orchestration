@@ -58,7 +58,7 @@ enum PurchaseStatus {
   EXECUTE = 0;
   SUCCESS = 1;
   FAILED = 2;
-  ROLLBACKED = 3;
+  ROLLBACK = 3;
   ROLLBACK_FAILED = 4;
 }
 
