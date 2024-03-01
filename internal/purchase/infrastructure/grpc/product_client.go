@@ -59,6 +59,10 @@ func getProductStatus(status pb.Status) valueobject.Status {
 		return valueobject.ProductOk
 	case pb.Status_NOT_FOUND:
 		return valueobject.ProductNotFound
+	case pb.Status_NOT_ENOUGH:
+		return valueobject.ProductNotEnough
+	case pb.Status_INTERNAL_ERROR:
+		return valueobject.ProductInternalError
 	default:
 		return -1
 	}
