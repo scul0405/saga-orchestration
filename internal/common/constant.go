@@ -10,10 +10,12 @@ var (
 	PurchaseResultTopic = "purchase-result"
 
 	// UpdateProductInventoryTopic is the topic to which we publish update product inventory
-	UpdateProductInventoryTopic   = "update-product-inventory"
-	UpdateProductInventoryGroupID = "update-product-inventory-group"
-	UpdateProductInventoryHandler = "update-product-inventory-handler"
-	RollbackProductInventoryTopic = "rollback-product-inventory"
+	UpdateProductInventoryTopic     = "update-product-inventory"
+	UpdateProductInventoryGroupID   = "update-product-inventory-group"
+	UpdateProductInventoryHandler   = "update-product-inventory-handler"
+	RollbackProductInventoryTopic   = "rollback-product-inventory"
+	RollbackProductInventoryGroupID = "rollback-product-inventory-group"
+	RollbackProductInventoryHandler = "rollback-product-inventory-handler"
 
 	// CreateOrderTopic is the topic to which we publish create order
 	CreateOrderTopic   = "create-order"

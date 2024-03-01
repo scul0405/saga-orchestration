@@ -51,6 +51,7 @@ func NewEventHandler(
 
 func (h *eventHandler) Run(ctx context.Context) {
 	go h.consumer.ConsumeTopic(ctx, poolSize, common.UpdateProductInventoryGroupID, common.UpdateProductInventoryTopic, h.updateProductInventoryWorker)
+	go h.consumer.ConsumeTopic(ctx, poolSize, common.RollbackProductInventoryGroupID, common.RollbackProductInventoryTopic, h.rollbackProductInventoryWorker)
 }
 
 func (h *eventHandler) updateProductInventoryWorker(ctx context.Context, r *kafka.Reader, wg *sync.WaitGroup, workerID int) {
@@ -74,7 +75,7 @@ func (h *eventHandler) updateProductInventoryWorker(ctx context.Context, r *kafk
 			PurchaseId: purchase.PurchaseId,
 		}
 		if err = retry.Do(func() error {
-			err = h.productSvc.Commands.UpdateProductInventory.Handle(ctx, decodePbCreatePurchaseRequest(&purchase))
+			err = h.productSvc.Commands.UpdateProductInventory.Handle(ctx, decodePb2UpdateProductInventoryCmd(&purchase))
 			if err != nil {
 				reply.Success = false
 				reply.ErrorMessage = err.Error()
@@ -107,6 +108,64 @@ func (h *eventHandler) updateProductInventoryWorker(ctx context.Context, r *kafk
 		err = r.CommitMessages(ctx, m)
 		if err != nil {
 			h.logger.Errorf("Product.UpdateProductInventoryWorker: CommitMessages", err)
+		}
+	}
+}
+
+func (h *eventHandler) rollbackProductInventoryWorker(ctx context.Context, r *kafka.Reader, wg *sync.WaitGroup, workerID int) {
+	defer wg.Done()
+
+	for {
+		m, err := r.FetchMessage(ctx)
+		if err != nil {
+			h.logger.Errorf("Product.RollbackProductInventoryWorker: FetchMessage", err)
+			return
+		}
+
+		var purchase pb.CreatePurchaseRequest
+		if err = json.Unmarshal(m.Value, &purchase); err != nil {
+			h.logger.Errorf("Product.RollbackProductInventoryWorker: UnmarshalProto", err)
+			continue
+		}
+		h.logger.Infof("RollbackProductInventoryWorker: %v, message at topic/partition/offset %v/%v/%v: %s = %s\n", workerID, m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
+
+		reply := pb.CreatePurchaseResponse{
+			PurchaseId: purchase.PurchaseId,
+		}
+		if err = retry.Do(func() error {
+			err = h.productSvc.Commands.RollbackProductInventory.Handle(ctx, decodePb2RollbackProductInventoryCmd(&purchase))
+			if err != nil {
+				reply.Success = false
+				reply.ErrorMessage = err.Error()
+			} else {
+				reply.Success = true
+				reply.Purchase = purchase.Purchase
+			}
+
+			reply.Timestamp = timeconvert.Time2pbTimestamp(time.Now())
+			payload, _ := json.Marshal(&reply)
+
+			return h.producer.PublishMessage(ctx, kafka.Message{
+				Topic: common.ReplyTopic,
+				Value: payload,
+				Headers: []kafka.Header{
+					{
+						Key:   common.HandlerHeader,
+						Value: []byte(common.RollbackProductInventoryHandler),
+					},
+				},
+			})
+		},
+			retry.Attempts(retryAttempts),
+			retry.Delay(retryDelay),
+			retry.Context(ctx),
+		); err != nil {
+			// TODO: publish error message to error topic
+		}
+
+		err = r.CommitMessages(ctx, m)
+		if err != nil {
+			h.logger.Errorf("Product.RollbackProductInventoryWorker: CommitMessages", err)
 		}
 	}
 }

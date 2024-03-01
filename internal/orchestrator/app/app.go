@@ -55,7 +55,6 @@ func (a *app) StartTransaction(ctx context.Context, purchase *aggregate.Purchase
 func (a *app) HandleReply(ctx context.Context, msg *kafka.Message) error {
 	switch string(msg.Headers[0].Value) {
 	case common.UpdateProductInventoryHandler:
-		// Decode the message and update the purchase result
 		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
 		if err != nil {
 			return err
@@ -66,8 +65,22 @@ func (a *app) HandleReply(ctx context.Context, msg *kafka.Message) error {
 		}
 
 		return a.rollbackUpdateProductInventory(ctx, purchaseResult.Purchase)
+	case common.RollbackProductInventoryHandler:
+		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
+		if err != nil {
+			return err
+		}
+
+		if !purchaseResult.Success {
+			return a.publishPurchaseResult(ctx, &event.PurchaseResult{
+				PurchaseID: purchaseResult.Purchase.ID,
+				Status:     event.StatusRollbackFailed,
+				Step:       event.StepUpdateProductInventory,
+			})
+		}
+
+		return nil
 	case common.CreateOrderHandler:
-		// Decode the message and update the purchase result
 		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
 		if err != nil {
 			return err
