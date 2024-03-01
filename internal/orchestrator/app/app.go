@@ -56,7 +56,7 @@ func (a *app) HandleReply(ctx context.Context, msg *kafka.Message) error {
 	switch string(msg.Headers[0].Value) {
 	case common.UpdateProductInventoryHandler:
 		// Decode the message and update the purchase result
-		purchaseResult, err := decodeUpdateProductInventoryResult(msg.Value)
+		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
 		if err != nil {
 			return err
 		}
@@ -66,6 +66,20 @@ func (a *app) HandleReply(ctx context.Context, msg *kafka.Message) error {
 		}
 
 		return a.rollbackUpdateProductInventory(ctx, purchaseResult.Purchase)
+	case common.CreateOrderHandler:
+		// Decode the message and update the purchase result
+		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
+		if err != nil {
+			return err
+		}
+
+		if purchaseResult.Success {
+			// TODO: Implement create payment
+			a.logger.Info("Creating payment...")
+			return nil
+		}
+
+		return a.rollbackCreateOrder(ctx, purchaseResult.Purchase)
 	default:
 		return fmt.Errorf("handle reply: unknown handler: %s", msg.Headers[0].Key)
 	}
@@ -103,7 +117,6 @@ func (a *app) rollbackUpdateProductInventory(ctx context.Context, purchase *aggr
 }
 
 func (a *app) createOrder(ctx context.Context, purchase *aggregate.Purchase) error {
-	a.logger.Info("Creating order for purchase", "purchase_id", purchase.ID)
 	err := a.publishPurchaseResult(ctx, &event.PurchaseResult{
 		PurchaseID: purchase.ID,
 		Status:     event.StatusSucess,
@@ -127,6 +140,37 @@ func (a *app) createOrder(ctx context.Context, purchase *aggregate.Purchase) err
 	payload, _ := json.Marshal(pbPurchase)
 	return a.producer.PublishMessage(ctx, kafka.Message{
 		Topic: common.CreateOrderTopic,
+		Value: payload,
+	})
+}
+
+func (a *app) rollbackCreateOrder(ctx context.Context, purchase *aggregate.Purchase) error {
+	err := a.publishPurchaseResult(ctx, &event.PurchaseResult{
+		PurchaseID: purchase.ID,
+		Status:     event.StatusFailed,
+		Step:       event.StepCreateOrder,
+	})
+	if err != nil {
+		return err
+	}
+
+	pbRollback := &pb.RollbackPurchaseRequest{
+		PurchaseId: purchase.ID,
+		Timestamp:  timeconvert.Time2pbTimestamp(time.Now()),
+	}
+
+	err = a.publishPurchaseResult(ctx, &event.PurchaseResult{
+		PurchaseID: purchase.ID,
+		Status:     event.StatusRollbacked,
+		Step:       event.StepCreateOrder,
+	})
+	if err != nil {
+		return err
+	}
+
+	payload, _ := json.Marshal(pbRollback)
+	return a.producer.PublishMessage(ctx, kafka.Message{
+		Topic: common.RollbackOrderTopic,
 		Value: payload,
 	})
 }

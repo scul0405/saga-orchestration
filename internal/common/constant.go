@@ -16,7 +16,10 @@ var (
 	RollbackProductInventoryTopic = "rollback-product-inventory"
 
 	// CreateOrderTopic is the topic to which we publish create order
-	CreateOrderTopic = "create-order"
+	CreateOrderTopic   = "create-order"
+	CreateOrderGroupID = "create-order-group"
+	CreateOrderHandler = "create-order-handler"
+	RollbackOrderTopic = "rollback-order"
 
 	// ReplyTopic is saga step reply topic
 	ReplyTopic   = "reply"

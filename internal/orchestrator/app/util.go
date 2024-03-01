@@ -44,7 +44,7 @@ func encodeModel2PurchaseRequest(purchase *aggregate.Purchase) *pb.CreatePurchas
 	}
 }
 
-func decodeUpdateProductInventoryResult(data []byte) (*event.CreatePurchaseResponse, error) {
+func decodePbResponseToEventModel(data []byte) (*event.CreatePurchaseResponse, error) {
 	var pbResult pb.CreatePurchaseResponse
 	err := json.Unmarshal(data, &pbResult)
 	if err != nil {

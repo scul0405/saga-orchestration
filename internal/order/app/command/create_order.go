@@ -11,7 +11,7 @@ import (
 
 type CreateOrder struct {
 	CustomerID uint64
-	Products   []PurchasedProduct
+	Products   *[]PurchasedProduct
 }
 
 type PurchasedProduct struct {
@@ -41,8 +41,8 @@ func (h *createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) error 
 		return err
 	}
 
-	products := make([]valueobject.PurchasedProduct, len(cmd.Products))
-	for i, p := range cmd.Products {
+	products := make([]valueobject.PurchasedProduct, len(*cmd.Products))
+	for i, p := range *cmd.Products {
 		products[i] = valueobject.PurchasedProduct{
 			ID:       p.ProductID,
 			Quantity: p.Quantity,
