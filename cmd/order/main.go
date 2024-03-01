@@ -13,7 +13,6 @@ import (
 	kafkaClient "github.com/scul0405/saga-orchestration/pkg/kafka"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/pgconn"
-	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"log"
 	"os"
 	"os/signal"
@@ -66,12 +65,6 @@ func main() {
 	// create repositories
 	orderRepo := pg_repo.NewOrderRepository(psqlDB)
 
-	// create sony flake
-	sf, err := sonyflake.NewSonyFlake()
-	if err != nil {
-		apiLogger.Fatal(err)
-	}
-
 	// Create connection
 	productClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.ProductSvc)
 	if err != nil {
@@ -86,7 +79,7 @@ func main() {
 	authSvc := grpc.NewAuthService(authClientConn)
 
 	// create services
-	orderSvc := service.NewOrderService(sf, apiLogger, orderRepo, productSvc)
+	orderSvc := service.NewOrderService(apiLogger, orderRepo, productSvc)
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)

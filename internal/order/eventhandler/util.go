@@ -5,7 +5,7 @@ import (
 	pb "github.com/scul0405/saga-orchestration/proto"
 )
 
-func decodePbCreatePurchaseRequest(purchase *pb.CreatePurchaseRequest) command.CreateOrder {
+func decodePb2CreateOrderCmd(purchase *pb.CreatePurchaseRequest) command.CreateOrder {
 	purchasedProduct := make([]command.PurchasedProduct, len(purchase.Purchase.Order.OrderItems))
 	for i, item := range purchase.Purchase.Order.OrderItems {
 		purchasedProduct[i] = command.PurchasedProduct{

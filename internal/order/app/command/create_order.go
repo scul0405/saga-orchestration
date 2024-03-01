@@ -6,10 +6,10 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/order/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/order/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
-	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 )
 
 type CreateOrder struct {
+	OrderID    uint64
 	CustomerID uint64
 	Products   *[]PurchasedProduct
 }
@@ -22,25 +22,18 @@ type PurchasedProduct struct {
 type CreateOrderHandler CommandHandler[CreateOrder]
 
 type createOrderHandler struct {
-	sf        sonyflake.IDGenerator
 	logger    logger.Logger
 	orderRepo domain.OrderRepository
 }
 
-func NewCreateOrderHandler(sf sonyflake.IDGenerator, logger logger.Logger, orderRepo domain.OrderRepository) CreateOrderHandler {
+func NewCreateOrderHandler(logger logger.Logger, orderRepo domain.OrderRepository) CreateOrderHandler {
 	return &createOrderHandler{
-		sf:        sf,
 		logger:    logger,
 		orderRepo: orderRepo,
 	}
 }
 
 func (h *createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) error {
-	orderID, err := h.sf.NextID()
-	if err != nil {
-		return err
-	}
-
 	products := make([]valueobject.PurchasedProduct, len(*cmd.Products))
 	for i, p := range *cmd.Products {
 		products[i] = valueobject.PurchasedProduct{
@@ -49,8 +42,8 @@ func (h *createOrderHandler) Handle(ctx context.Context, cmd CreateOrder) error 
 		}
 	}
 
-	err = h.orderRepo.CreateOrder(ctx, &entity.Order{
-		ID:                orderID,
+	err := h.orderRepo.CreateOrder(ctx, &entity.Order{
+		ID:                cmd.OrderID,
 		CustomerID:        cmd.CustomerID,
 		PurchasedProducts: &products,
 	})

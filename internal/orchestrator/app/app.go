@@ -93,6 +93,21 @@ func (a *app) HandleReply(ctx context.Context, msg *kafka.Message) error {
 		}
 
 		return a.rollbackCreateOrder(ctx, purchaseResult.Purchase)
+	case common.RollbackOrderHandler:
+		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
+		if err != nil {
+			return err
+		}
+
+		if !purchaseResult.Success {
+			return a.publishPurchaseResult(ctx, &event.PurchaseResult{
+				PurchaseID: purchaseResult.Purchase.ID,
+				Status:     event.StatusRollbackFailed,
+				Step:       event.StepCreateOrder,
+			})
+		}
+
+		return nil
 	default:
 		return fmt.Errorf("handle reply: unknown handler: %s", msg.Headers[0].Key)
 	}
@@ -115,7 +130,7 @@ func (a *app) rollbackUpdateProductInventory(ctx context.Context, purchase *aggr
 
 	err = a.publishPurchaseResult(ctx, &event.PurchaseResult{
 		PurchaseID: purchase.ID,
-		Status:     event.StatusRollbacked,
+		Status:     event.StatusRollback,
 		Step:       event.StepUpdateProductInventory,
 	})
 	if err != nil {
@@ -174,7 +189,7 @@ func (a *app) rollbackCreateOrder(ctx context.Context, purchase *aggregate.Purch
 
 	err = a.publishPurchaseResult(ctx, &event.PurchaseResult{
 		PurchaseID: purchase.ID,
-		Status:     event.StatusRollbacked,
+		Status:     event.StatusRollback,
 		Step:       event.StepCreateOrder,
 	})
 	if err != nil {
@@ -182,10 +197,20 @@ func (a *app) rollbackCreateOrder(ctx context.Context, purchase *aggregate.Purch
 	}
 
 	payload, _ := json.Marshal(pbRollback)
-	return a.producer.PublishMessage(ctx, kafka.Message{
+	err = a.producer.PublishMessage(ctx, kafka.Message{
 		Topic: common.RollbackOrderTopic,
 		Value: payload,
 	})
+	if err != nil {
+		a.logger.Errorf("Orchestrator.RollbackFromOrder.RollbackCreateOrder, err: %v", err)
+		return err
+	}
+
+	err = a.rollbackUpdateProductInventory(ctx, purchase)
+	if err != nil {
+		a.logger.Errorf("Orchestrator.RollbackFromOrder.RollbackUpdateProductInventory, err: %v", err)
+	}
+	return err
 }
 
 func (a *app) publishPurchaseResult(ctx context.Context, result *event.PurchaseResult) error {

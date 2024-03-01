@@ -96,8 +96,8 @@ func getPbPurchaseStatus(status string) pb.PurchaseStatus {
 		return pb.PurchaseStatus_SUCCESS
 	case event.StatusFailed:
 		return pb.PurchaseStatus_FAILED
-	case event.StatusRollbacked:
-		return pb.PurchaseStatus_ROLLBACKED
+	case event.StatusRollback:
+		return pb.PurchaseStatus_ROLLBACK
 	case event.StatusRollbackFailed:
 		return pb.PurchaseStatus_ROLLBACK_FAILED
 	}
