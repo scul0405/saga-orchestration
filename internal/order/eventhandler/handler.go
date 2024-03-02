@@ -82,9 +82,9 @@ func (h *eventHandler) createOrderWorker(ctx context.Context, r *kafka.Reader, w
 				reply.ErrorMessage = err.Error()
 			} else {
 				reply.Success = true
-				reply.Purchase = purchase.Purchase
 			}
 
+			reply.Purchase = purchase.Purchase
 			reply.Timestamp = timeconvert.Time2pbTimestamp(time.Now())
 			payload, _ := json.Marshal(&reply)
 
@@ -140,9 +140,9 @@ func (h *eventHandler) rollbackOrderWorker(ctx context.Context, r *kafka.Reader,
 				reply.ErrorMessage = err.Error()
 			} else {
 				reply.Success = true
-				reply.Purchase = purchase.Purchase
 			}
 
+			reply.Purchase = purchase.Purchase
 			reply.Timestamp = timeconvert.Time2pbTimestamp(time.Now())
 			payload, _ := json.Marshal(&reply)
 

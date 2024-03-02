@@ -81,9 +81,9 @@ func (h *eventHandler) updateProductInventoryWorker(ctx context.Context, r *kafk
 				reply.ErrorMessage = err.Error()
 			} else {
 				reply.Success = true
-				reply.Purchase = purchase.Purchase
 			}
 
+			reply.Purchase = purchase.Purchase
 			reply.Timestamp = timeconvert.Time2pbTimestamp(time.Now())
 			payload, _ := json.Marshal(&reply)
 
@@ -139,9 +139,9 @@ func (h *eventHandler) rollbackProductInventoryWorker(ctx context.Context, r *ka
 				reply.ErrorMessage = err.Error()
 			} else {
 				reply.Success = true
-				reply.Purchase = purchase.Purchase
 			}
 
+			reply.Purchase = purchase.Purchase
 			reply.Timestamp = timeconvert.Time2pbTimestamp(time.Now())
 			payload, _ := json.Marshal(&reply)
 
