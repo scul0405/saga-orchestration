@@ -15,6 +15,7 @@ func decodePb2CreateOrderCmd(purchase *pb.CreatePurchaseRequest) command.CreateO
 	}
 
 	return command.CreateOrder{
+		OrderID:    purchase.PurchaseId,
 		CustomerID: purchase.Purchase.Order.CustomerId,
 		Products:   &purchasedProduct,
 	}
