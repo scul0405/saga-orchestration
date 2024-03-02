@@ -7,13 +7,12 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/order/domain"
 	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
-	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 )
 
-func NewOrderService(sf sonyflake.IDGenerator, logger logger.Logger, orderRepo domain.OrderRepository, productSvc grpc.ProductService) app.Application {
+func NewOrderService(logger logger.Logger, orderRepo domain.OrderRepository, productSvc grpc.ProductService) app.Application {
 	return app.Application{
 		Commands: app.Commands{
-			CreateOrder: command.NewCreateOrderHandler(sf, logger, orderRepo),
+			CreateOrder: command.NewCreateOrderHandler(logger, orderRepo),
 			DeleteOrder: command.NewDeleteOrderHandler(logger, orderRepo),
 		},
 		Queries: app.Queries{

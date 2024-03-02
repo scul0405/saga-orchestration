@@ -12,13 +12,14 @@ import (
 )
 
 var (
-	OkMessage          = "success"
-	ErrInvalidID       = "invalid id"
-	ErrInvalidJSON     = "invalid json"
-	ErrForbidden       = "forbidden"
-	ErrInternal        = "internal error"
-	ErrInvalidToken    = "invalid token"
-	ErrProductNotFound = "product not found"
+	OkMessage           = "success"
+	ErrInvalidID        = "invalid id"
+	ErrInvalidJSON      = "invalid json"
+	ErrForbidden        = "forbidden"
+	ErrInternal         = "internal error"
+	ErrInvalidToken     = "invalid token"
+	ErrProductNotFound  = "product not found"
+	ErrProductNotEnough = "product not enough"
 )
 
 type Router struct {
@@ -60,10 +61,15 @@ func (r *Router) CreatePurchase(c *gin.Context) {
 		if errors.Is(err, query.ErrProductNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": ErrProductNotFound})
 			return
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternal})
+		}
+
+		if errors.Is(err, query.ErrProductNotEnough) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": ErrProductNotFound})
 			return
 		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternal})
+		return
 	}
 
 	purchaseCmd := command.CreatePurchase{

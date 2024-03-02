@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package purchase;
+option go_package = ".;pb";
+
+import "google/protobuf/timestamp.proto";
+
+// data schemas
+message PurchaseOrderItem {
+  uint64 product_id = 1;
+  uint64 quantity = 2;
+}
+
+message Order {
+  uint64 customer_id = 1;
+  repeated PurchaseOrderItem order_items = 2;
+}
+
+message Payment {
+  string currency_code = 1;
+  uint64 amount = 2;
+}
+
+message Purchase {
+  Order order = 1;
+  Payment payment = 2;
+}
+
+// purchase commands
+message CreatePurchaseRequest {
+  uint64 purchase_id = 1;
+  Purchase purchase = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message CreatePurchaseResponse {
+  uint64 purchase_id = 1;
+  Purchase purchase = 2;
+  bool success = 3;
+  string error_message = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+message RollbackPurchaseRequest {
+  uint64 purchase_id = 1;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message RollbackPurchaseResponse {
+  uint64 purchase_id = 1;
+  bool success = 2;
+  string error_message = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+// purchase result
+enum PurchaseStatus {
+  EXECUTE = 0;
+  SUCCESS = 1;
+  FAILED = 2;
+  ROLLBACK = 3;
+  ROLLBACK_FAILED = 4;
+}
+
+enum PurchaseStep {
+  UPDATE_PRODUCT_INVENTORY = 0;
+  CREATE_ORDER = 1;
+  CREATE_PAYMENT = 2;
+}
+
+message PurchaseResult {
+  uint64 purchase_id = 1;
+  bool success = 2;
+  PurchaseStatus status = 3;
+  PurchaseStep step = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}

@@ -8,7 +8,7 @@ import (
 
 // ProductRepository is an interface for product repository
 type ProductRepository interface {
-	CheckProduct(ctx context.Context, productID uint64) (*valueobject.ProductStatus, error)
+	CheckProduct(ctx context.Context, productID uint64, quantity uint64) (*valueobject.ProductStatus, error)
 	GetProductDetail(ctx context.Context, productID uint64) (*valueobject.ProductDetail, error)
 	GetProductInventory(ctx context.Context, productID uint64) (uint64, error)
 	GetProduct(ctx context.Context, productIDs uint64) (*entity.Product, error)

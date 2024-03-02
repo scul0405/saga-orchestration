@@ -26,7 +26,7 @@ func NewProductRepository(db *gorm.DB) domain.ProductRepository {
 	return &productRepositoryImpl{db: db}
 }
 
-func (r *productRepositoryImpl) CheckProduct(ctx context.Context, productID uint64) (*valueobject.ProductStatus, error) {
+func (r *productRepositoryImpl) CheckProduct(ctx context.Context, productID uint64, quantity uint64) (*valueobject.ProductStatus, error) {
 	var productStatus model.Product
 	if err := r.db.Model(&model.Product{}).Where("id = ?", productID).Select("id", "price", "inventory").First(&productStatus).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -43,7 +43,7 @@ func (r *productRepositoryImpl) CheckProduct(ctx context.Context, productID uint
 	return &valueobject.ProductStatus{
 		ID:     productStatus.ID,
 		Price:  productStatus.Price,
-		Status: productStatus.Inventory > 0,
+		Status: productStatus.Inventory > quantity,
 	}, nil
 }
 
@@ -149,7 +149,7 @@ func (r *productRepositoryImpl) UpdateProductInventory(ctx context.Context, idem
 	if err := r.db.Model(&model.Idempotency{}).Where("id = ?", idempotencyKey).Count(&count).WithContext(ctx).Error; err != nil {
 		return err
 	}
-	if count == 0 {
+	if count != 0 {
 		return ErrInvalidIdempotency
 	}
 

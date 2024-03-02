@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"github.com/scul0405/saga-orchestration/cmd/purchase/config"
-	"github.com/scul0405/saga-orchestration/internal/common"
 	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	"github.com/scul0405/saga-orchestration/internal/purchase/eventhandler"
 	"github.com/scul0405/saga-orchestration/internal/purchase/infrastructure/grpc"
@@ -63,7 +62,7 @@ func main() {
 	}
 	authSvc := grpc.NewAuthService(authClientConn)
 
-	producer := kafkaClient.NewProducer(apiLogger, []string{"localhost:9091"}, common.PurchaseTopic)
+	producer := kafkaClient.NewProducer(apiLogger, cfg.Kafka.Brokers)
 
 	// Create event publisher
 	evPub := eventhandler.NewPurchaseEventHandler(producer)

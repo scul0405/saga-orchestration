@@ -10,7 +10,9 @@ import (
 )
 
 var (
-	ErrProductNotFound = errors.New("product not found")
+	ErrProductNotFound  = errors.New("product not found")
+	ErrProductNotEnough = errors.New("product not enough")
+	ErrInternal         = errors.New("internal error")
 )
 
 type CheckProducts struct {
@@ -51,8 +53,15 @@ func (h *checkProductsHandler) Handle(ctx context.Context, query CheckProducts) 
 	}
 
 	for _, status := range *productStatuses {
-		if status.Status != valueobject.ProductOk {
+		switch status.Status {
+		case valueobject.ProductNotFound:
 			return nil, ErrProductNotFound
+		case valueobject.ProductNotEnough:
+			return nil, ErrProductNotEnough
+		case valueobject.ProductInternalError:
+			return nil, ErrInternal
+		default:
+			continue
 		}
 	}
 

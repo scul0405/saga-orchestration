@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"github.com/scul0405/saga-orchestration/cmd/payment/config"
+	"github.com/scul0405/saga-orchestration/internal/payment/eventhandler"
 	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/db/postgres"
 	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/payment/interface/http"
 	"github.com/scul0405/saga-orchestration/internal/payment/repository/pg_repo"
 	"github.com/scul0405/saga-orchestration/internal/payment/service"
 	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
+	kafkaClient "github.com/scul0405/saga-orchestration/pkg/kafka"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	"github.com/scul0405/saga-orchestration/pkg/pgconn"
-	"github.com/scul0405/saga-orchestration/pkg/sonyflake"
 	"log"
 	"os"
 	"os/signal"
@@ -64,12 +65,6 @@ func main() {
 	// create repositories
 	orderRepo := pg_repo.NewOrderRepository(psqlDB)
 
-	// create sony flake
-	sf, err := sonyflake.NewSonyFlake()
-	if err != nil {
-		apiLogger.Fatal(err)
-	}
-
 	// connect to other services
 	authClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.AuthSvc)
 	if err != nil {
@@ -78,7 +73,7 @@ func main() {
 	authSvc := grpc.NewAuthService(authClientConn)
 
 	// create services
-	paymentSvc := service.NewPaymentService(sf, apiLogger, orderRepo)
+	paymentSvc := service.NewPaymentService(apiLogger, orderRepo)
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)
@@ -92,9 +87,19 @@ func main() {
 		}
 	}()
 
+	// create kafka
+	producer := kafkaClient.NewProducer(apiLogger, cfg.Kafka.Brokers)
+	consumer := kafkaClient.NewConsumerGroup(cfg.Kafka.Brokers, apiLogger)
+
+	// create event handler
+	paymentEvHandler := eventhandler.NewEventHandler(cfg, apiLogger, consumer, producer, paymentSvc)
+
 	doneCh := make(chan struct{}) // for graceful shutdown
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
+
+	// run event handler
+	paymentEvHandler.Run(ctx)
 
 	// graceful shutdown
 	<-ctx.Done()
