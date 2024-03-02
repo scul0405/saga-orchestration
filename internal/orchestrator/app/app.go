@@ -87,9 +87,7 @@ func (a *app) HandleReply(ctx context.Context, msg *kafka.Message) error {
 		}
 
 		if purchaseResult.Success {
-			// TODO: Implement create payment
-			a.logger.Info("Creating payment...")
-			return nil
+			return a.createPayment(ctx, purchaseResult.Purchase)
 		}
 
 		return a.rollbackCreateOrder(ctx, purchaseResult.Purchase)
@@ -104,6 +102,36 @@ func (a *app) HandleReply(ctx context.Context, msg *kafka.Message) error {
 				PurchaseID: purchaseResult.Purchase.ID,
 				Status:     event.StatusRollbackFailed,
 				Step:       event.StepCreateOrder,
+			})
+		}
+
+		return nil
+	case common.CreatePaymentHandler:
+		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
+		if err != nil {
+			return err
+		}
+
+		if purchaseResult.Success {
+			return a.publishPurchaseResult(ctx, &event.PurchaseResult{
+				PurchaseID: purchaseResult.Purchase.ID,
+				Status:     event.StatusSucess,
+				Step:       event.StepCreatePayment,
+			})
+		}
+
+		return a.rollbackPayment(ctx, purchaseResult.Purchase)
+	case common.RollbackPaymentHandler:
+		purchaseResult, err := decodePbResponseToEventModel(msg.Value)
+		if err != nil {
+			return err
+		}
+
+		if !purchaseResult.Success {
+			return a.publishPurchaseResult(ctx, &event.PurchaseResult{
+				PurchaseID: purchaseResult.Purchase.ID,
+				Status:     event.StatusRollbackFailed,
+				Step:       event.StepCreatePayment,
 			})
 		}
 
@@ -206,11 +234,72 @@ func (a *app) rollbackCreateOrder(ctx context.Context, purchase *aggregate.Purch
 		return err
 	}
 
-	err = a.rollbackUpdateProductInventory(ctx, purchase)
+	return a.rollbackUpdateProductInventory(ctx, purchase)
+}
+
+func (a *app) createPayment(ctx context.Context, purchase *aggregate.Purchase) error {
+	err := a.publishPurchaseResult(ctx, &event.PurchaseResult{
+		PurchaseID: purchase.ID,
+		Status:     event.StatusSucess,
+		Step:       event.StepCreatePayment,
+	})
 	if err != nil {
-		a.logger.Errorf("Orchestrator.RollbackFromOrder.RollbackUpdateProductInventory, err: %v", err)
+		return err
 	}
-	return err
+
+	pbPurchase := encodeModel2PurchaseRequest(purchase)
+
+	err = a.publishPurchaseResult(ctx, &event.PurchaseResult{
+		PurchaseID: purchase.ID,
+		Status:     event.StatusExecute,
+		Step:       event.StepCreatePayment,
+	})
+	if err != nil {
+		return err
+	}
+
+	payload, _ := json.Marshal(pbPurchase)
+	return a.producer.PublishMessage(ctx, kafka.Message{
+		Topic: common.CreatePaymentTopic,
+		Value: payload,
+	})
+}
+
+func (a *app) rollbackPayment(ctx context.Context, purchase *aggregate.Purchase) error {
+	err := a.publishPurchaseResult(ctx, &event.PurchaseResult{
+		PurchaseID: purchase.ID,
+		Status:     event.StatusFailed,
+		Step:       event.StepCreatePayment,
+	})
+	if err != nil {
+		return err
+	}
+
+	pbRollback := &pb.RollbackPurchaseRequest{
+		PurchaseId: purchase.ID,
+		Timestamp:  timeconvert.Time2pbTimestamp(time.Now()),
+	}
+
+	err = a.publishPurchaseResult(ctx, &event.PurchaseResult{
+		PurchaseID: purchase.ID,
+		Status:     event.StatusRollback,
+		Step:       event.StepCreatePayment,
+	})
+	if err != nil {
+		return err
+	}
+
+	payload, _ := json.Marshal(pbRollback)
+	err = a.producer.PublishMessage(ctx, kafka.Message{
+		Topic: common.RollbackPaymentTopic,
+		Value: payload,
+	})
+	if err != nil {
+		a.logger.Errorf("Orchestrator.RollbackFromPayment.RollbackCreatePayment, err: %v", err)
+		return err
+	}
+
+	return a.rollbackCreateOrder(ctx, purchase)
 }
 
 func (a *app) publishPurchaseResult(ctx context.Context, result *event.PurchaseResult) error {

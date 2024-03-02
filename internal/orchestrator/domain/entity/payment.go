@@ -1,7 +1,7 @@
-package valueobject
+package entity
 
-// Payment value object
 type Payment struct {
+	ID           uint64
 	CurrencyCode string
 	Amount       uint64
 }

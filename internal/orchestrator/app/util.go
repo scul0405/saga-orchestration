@@ -5,7 +5,6 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/orchestrator/domain/aggregate"
 	"github.com/scul0405/saga-orchestration/internal/orchestrator/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/orchestrator/domain/event"
-	"github.com/scul0405/saga-orchestration/internal/orchestrator/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/pkg/timeconvert"
 	pb "github.com/scul0405/saga-orchestration/proto"
 	"time"
@@ -63,10 +62,12 @@ func decodePbResponseToEventModel(data []byte) (*event.CreatePurchaseResponse, e
 		Purchase: &aggregate.Purchase{
 			ID: pbResult.PurchaseId,
 			Order: &entity.Order{
+				ID:         pbResult.PurchaseId,
 				CustomerID: pbResult.Purchase.Order.CustomerId,
 				OrderItems: &orderItems,
 			},
-			Payment: &valueobject.Payment{
+			Payment: &entity.Payment{
+				ID:           pbResult.PurchaseId,
 				CurrencyCode: pbResult.Purchase.Payment.CurrencyCode,
 				Amount:       pbResult.Purchase.Payment.Amount,
 			},

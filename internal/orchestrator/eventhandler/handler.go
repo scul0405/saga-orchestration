@@ -9,7 +9,6 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/orchestrator/app"
 	"github.com/scul0405/saga-orchestration/internal/orchestrator/domain/aggregate"
 	"github.com/scul0405/saga-orchestration/internal/orchestrator/domain/entity"
-	"github.com/scul0405/saga-orchestration/internal/orchestrator/domain/valueobject"
 	kafkaClient "github.com/scul0405/saga-orchestration/pkg/kafka"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
 	pb "github.com/scul0405/saga-orchestration/proto"
@@ -77,10 +76,12 @@ func (h *eventHandler) createPurchaseWorker(ctx context.Context, r *kafka.Reader
 		domainPurchase := aggregate.Purchase{
 			ID: purchase.PurchaseId,
 			Order: &entity.Order{
+				ID:         purchase.PurchaseId,
 				OrderItems: &orderItems,
 				CustomerID: purchase.Purchase.Order.CustomerId,
 			},
-			Payment: &valueobject.Payment{
+			Payment: &entity.Payment{
+				ID:           purchase.PurchaseId,
 				Amount:       purchase.Purchase.Payment.Amount,
 				CurrencyCode: purchase.Purchase.Payment.CurrencyCode,
 			},
