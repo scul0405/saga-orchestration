@@ -1,11 +1,10 @@
-package pg_repo
+package pgrepo
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/scul0405/saga-orchestration/internal/product/domain"
 	"github.com/scul0405/saga-orchestration/internal/product/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/product/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/db/postgres/model"
@@ -63,9 +62,9 @@ func (r *productRepositoryImpl) GetProductInventory(ctx context.Context, product
 	return product.Inventory, nil
 }
 
-func (r *productRepositoryImpl) GetProduct(ctx context.Context, productIDs uint64) (*entity.Product, error) {
+func (r *productRepositoryImpl) GetProduct(ctx context.Context, productID uint64) (*entity.Product, error) {
 	var product model.Product
-	if err := r.db.Where("id = ?", productIDs).First(&product).Error; err != nil {
+	if err := r.db.Where("id = ?", productID).First(&product).Error; err != nil {
 		return nil, err
 	}
 
