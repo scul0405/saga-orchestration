@@ -35,3 +35,6 @@ rpcEndpoints:
 
 kafka:
   Brokers: ["localhost:9091"]
+
+localCahe:
+    ExpirationTime: 600

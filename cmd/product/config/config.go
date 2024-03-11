@@ -16,6 +16,7 @@ type Config struct {
 	Migration   Migration
 	RpcEnpoints RpcEndpoints `mapstructure:"rpcEndpoints"`
 	Kafka       Kafka
+	LocalCache  LocalCache `mapstructure:"localCache"`
 }
 
 type HTTP struct {
@@ -46,6 +47,10 @@ type RpcEndpoints struct {
 
 type Kafka struct {
 	Brokers []string
+}
+
+type LocalCache struct {
+	ExpirationTime uint64
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

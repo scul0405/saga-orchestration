@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"github.com/scul0405/saga-orchestration/cmd/product/config"
+	"github.com/scul0405/saga-orchestration/internal/pkg/cache"
 	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	"github.com/scul0405/saga-orchestration/internal/product/eventhandler"
 	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/db/postgres"
 	grpcclient "github.com/scul0405/saga-orchestration/internal/product/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/product/interface/grpc"
 	"github.com/scul0405/saga-orchestration/internal/product/interface/http"
-	"github.com/scul0405/saga-orchestration/internal/product/repository/pg_repo"
+	"github.com/scul0405/saga-orchestration/internal/product/repository/pgrepo"
+	"github.com/scul0405/saga-orchestration/internal/product/repository/proxy"
 	"github.com/scul0405/saga-orchestration/internal/product/service"
 	kafkaClient "github.com/scul0405/saga-orchestration/pkg/kafka"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
@@ -28,6 +30,8 @@ const (
 
 func main() {
 	log.Println("Start product service...")
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
 
 	cfgFile, err := config.LoadConfig("./config/config")
 	if err != nil {
@@ -64,8 +68,14 @@ func main() {
 	}
 	apiLogger.Info("Migrations successfully")
 
+	localCache, err := cache.NewLocalCache(ctx, cfg.LocalCache.ExpirationTime)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
+
 	// create repositories
-	productRepo := pg_repo.NewProductRepository(psqlDB)
+	productPgRepo := pgrepo.NewProductRepository(psqlDB)
+	productRepo := proxy.NewProductRepository(productPgRepo, localCache, apiLogger)
 
 	// create sony flake
 	sf, err := sonyflake.NewSonyFlake()
@@ -112,8 +122,6 @@ func main() {
 	productEvHandler := eventhandler.NewEventHandler(cfg, apiLogger, consumer, producer, productSvc)
 
 	doneCh := make(chan struct{}) // for graceful shutdown
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-	defer cancel()
 
 	// run event handler
 	productEvHandler.Run(ctx)
