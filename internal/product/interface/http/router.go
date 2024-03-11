@@ -55,14 +55,22 @@ func (r *Router) CreateProduct(c *gin.Context) {
 }
 
 func (r *Router) UpdateProductDetail(c *gin.Context) {
+	idParam := c.Param("id")
+
+	productID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID})
+		return
+	}
+
 	var product dto.UpdateProductDetail
-	if err := c.ShouldBindJSON(&product); err != nil {
+	if err = c.ShouldBindJSON(&product); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidJSON})
 		return
 	}
 
-	err := r.app.Commands.UpdateProductDetail.Handle(c, command.UpdateProductDetail{
-		ProductID:   product.ID,
+	err = r.app.Commands.UpdateProductDetail.Handle(c, command.UpdateProductDetail{
+		ProductID:   productID,
 		Name:        product.Name,
 		BrandName:   product.BrandName,
 		Description: product.Description,

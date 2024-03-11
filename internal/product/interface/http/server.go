@@ -44,7 +44,7 @@ func (srv *Server) InitRoutes() {
 	{
 		productGroup := apiGroup.Group("/products")
 		{
-			productGroup.GET("/", srv.Router.GetProduct)
+			productGroup.GET("/:id", srv.Router.GetProduct)
 			productGroup.POST("/", mw.AuthMiddleware(), srv.Router.CreateProduct)
 			productGroup.PUT("/:id", srv.Router.UpdateProductDetail)
 		}
