@@ -16,6 +16,8 @@ type Config struct {
 	Migration   Migration
 	RpcEnpoints RpcEndpoints `mapstructure:"rpcEndpoints"`
 	Kafka       Kafka
+	LocalCache  LocalCache `mapstructure:"localCache"`
+	RedisCache  RedisCache `mapstructure:"redisCache"`
 }
 
 type HTTP struct {
@@ -46,6 +48,26 @@ type RpcEndpoints struct {
 
 type Kafka struct {
 	Brokers []string
+}
+
+type LocalCache struct {
+	ExpirationTime uint64
+}
+
+type RedisCache struct {
+	Address        string
+	Password       string
+	DB             int
+	PoolSize       int
+	MaxRetries     int
+	ExpirationTime uint64
+	CuckooFilter   CuckooFilter `mapstructure:"CuckooFilter"`
+}
+
+type CuckooFilter struct {
+	Capacity      int64
+	BucketSize    int64
+	MaxIterations int64
 }
 
 func LoadConfig(filename string) (*viper.Viper, error) {

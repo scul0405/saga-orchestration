@@ -1,11 +1,10 @@
-package pg_repo
+package pgrepo
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/scul0405/saga-orchestration/internal/product/domain"
 	"github.com/scul0405/saga-orchestration/internal/product/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/product/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/db/postgres/model"
@@ -13,6 +12,18 @@ import (
 	"gorm.io/gorm/clause"
 	"sort"
 )
+
+type ProductRepository interface {
+	CheckProduct(ctx context.Context, productID uint64, quantity uint64) (*valueobject.ProductStatus, error)
+	GetProductDetail(ctx context.Context, productID uint64) (*valueobject.ProductDetail, error)
+	GetProductInventory(ctx context.Context, productID uint64) (uint64, error)
+	GetProduct(ctx context.Context, productID uint64) (*entity.Product, error)
+	ListProducts(ctx context.Context, limit, offset uint64) (*[]valueobject.ProductCatalog, error)
+	CreateProduct(ctx context.Context, product *entity.Product) error
+	UpdateProductDetail(ctx context.Context, productID uint64, product *valueobject.ProductDetail) error
+	UpdateProductInventory(ctx context.Context, idempotencyKey uint64, purchasedProducts *[]valueobject.PurchasedProduct) error
+	RollbackProductInventory(ctx context.Context, idempotencyKey uint64, purchasedProducts *[]valueobject.PurchasedProduct) error
+}
 
 type ProductInventory struct {
 	Inventory uint64
@@ -22,7 +33,7 @@ type productRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func NewProductRepository(db *gorm.DB) domain.ProductRepository {
+func NewProductRepository(db *gorm.DB) ProductRepository {
 	return &productRepositoryImpl{db: db}
 }
 
@@ -63,9 +74,9 @@ func (r *productRepositoryImpl) GetProductInventory(ctx context.Context, product
 	return product.Inventory, nil
 }
 
-func (r *productRepositoryImpl) GetProduct(ctx context.Context, productIDs uint64) (*entity.Product, error) {
+func (r *productRepositoryImpl) GetProduct(ctx context.Context, productID uint64) (*entity.Product, error) {
 	var product model.Product
-	if err := r.db.Where("id = ?", productIDs).First(&product).Error; err != nil {
+	if err := r.db.Where("id = ?", productID).First(&product).Error; err != nil {
 		return nil, err
 	}
 

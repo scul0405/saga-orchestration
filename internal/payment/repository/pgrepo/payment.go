@@ -1,8 +1,7 @@
-package pg_repo
+package pgrepo
 
 import (
 	"context"
-	"github.com/scul0405/saga-orchestration/internal/payment/domain"
 	"github.com/scul0405/saga-orchestration/internal/payment/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/db/postgres/model"
 	"gorm.io/gorm"
@@ -12,7 +11,13 @@ type paymentRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func NewOrderRepository(db *gorm.DB) domain.PaymentRepository {
+type PaymentRepository interface {
+	GetPayment(ctx context.Context, paymentID uint64) (*entity.Payment, error)
+	CreatePayment(ctx context.Context, payment *entity.Payment) error
+	DeletePayment(ctx context.Context, paymentID uint64) error
+}
+
+func NewOrderRepository(db *gorm.DB) PaymentRepository {
 	return &paymentRepositoryImpl{db: db}
 }
 

@@ -1,4 +1,4 @@
-package pg_repo
+package pgrepo
 
 import "errors"
 

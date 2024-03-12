@@ -35,3 +35,18 @@ rpcEndpoints:
 
 kafka:
   Brokers: ["localhost:9091"]
+
+localCache:
+    ExpirationTime: 600
+
+redisCache:
+    Address: "localhost:6379"
+    Password: ""
+    DB: 0
+    PoolSize: 10
+    MaxRetries: 3
+    ExpirationTime: 900
+    CuckooFilter:
+      Capacity: 600000
+      BucketSize: 2
+      MaxIterations: 20

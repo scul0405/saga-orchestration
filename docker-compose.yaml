@@ -52,6 +52,14 @@ services:
     networks:
       - api_network
 
+  redis-stack-server:
+    container_name: redis-stack-server
+    image: redis/redis-stack-server:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - api_network
+
 networks:
   api_network:
     driver: bridge
