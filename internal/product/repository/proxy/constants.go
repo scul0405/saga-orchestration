@@ -1,7 +1,7 @@
 package proxy
 
 const (
-	cuckooFilter = "cuckoo_filter"
+	cuckooFilter = "product_cuckoo_filter"
 	dummnyItem   = "dummy_item"
 	mutexKey     = "mutex:"
 

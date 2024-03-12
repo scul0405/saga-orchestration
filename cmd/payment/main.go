@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"github.com/redis/go-redis/v9"
 	"github.com/scul0405/saga-orchestration/cmd/payment/config"
 	"github.com/scul0405/saga-orchestration/internal/payment/eventhandler"
 	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/db/postgres"
 	"github.com/scul0405/saga-orchestration/internal/payment/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/payment/interface/http"
-	"github.com/scul0405/saga-orchestration/internal/payment/repository/pg_repo"
+	"github.com/scul0405/saga-orchestration/internal/payment/repository/pgrepo"
+	"github.com/scul0405/saga-orchestration/internal/payment/repository/proxy"
 	"github.com/scul0405/saga-orchestration/internal/payment/service"
+	"github.com/scul0405/saga-orchestration/internal/pkg/cache"
 	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	kafkaClient "github.com/scul0405/saga-orchestration/pkg/kafka"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
@@ -26,6 +29,8 @@ const (
 
 func main() {
 	log.Println("Start payment service...")
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
 
 	cfgFile, err := config.LoadConfig("./config/config")
 	if err != nil {
@@ -62,8 +67,27 @@ func main() {
 	}
 	apiLogger.Info("Migrations successfully")
 
+	// create cache
+	localCache, err := cache.NewLocalCache(ctx, cfg.LocalCache.ExpirationTime)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
+
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:       cfg.RedisCache.Address,
+		Password:   cfg.RedisCache.Password,
+		DB:         cfg.RedisCache.DB,
+		PoolSize:   cfg.RedisCache.PoolSize,
+		MaxRetries: cfg.RedisCache.MaxRetries,
+	})
+	redisCache := cache.NewRedisCache(redisClient, time.Duration(cfg.RedisCache.ExpirationTime)*time.Second)
+
 	// create repositories
-	orderRepo := pg_repo.NewOrderRepository(psqlDB)
+	paymentPgRepo := pgrepo.NewOrderRepository(psqlDB)
+	paymentRepo, err := proxy.NewPaymentRepository(paymentPgRepo, localCache, redisCache, apiLogger)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
 
 	// connect to other services
 	authClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.AuthSvc)
@@ -73,7 +97,7 @@ func main() {
 	authSvc := grpc.NewAuthService(authClientConn)
 
 	// create services
-	paymentSvc := service.NewPaymentService(apiLogger, orderRepo)
+	paymentSvc := service.NewPaymentService(apiLogger, paymentRepo)
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)
@@ -95,8 +119,6 @@ func main() {
 	paymentEvHandler := eventhandler.NewEventHandler(cfg, apiLogger, consumer, producer, paymentSvc)
 
 	doneCh := make(chan struct{}) // for graceful shutdown
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-	defer cancel()
 
 	// run event handler
 	paymentEvHandler.Run(ctx)
