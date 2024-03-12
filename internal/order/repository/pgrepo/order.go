@@ -1,19 +1,24 @@
-package pg_repo
+package pgrepo
 
 import (
 	"context"
-	"github.com/scul0405/saga-orchestration/internal/order/domain"
 	"github.com/scul0405/saga-orchestration/internal/order/domain/entity"
 	"github.com/scul0405/saga-orchestration/internal/order/domain/valueobject"
 	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/db/postgres/model"
 	"gorm.io/gorm"
 )
 
+type OrderRepository interface {
+	GetOrder(ctx context.Context, id uint64) (*entity.Order, error)
+	CreateOrder(ctx context.Context, order *entity.Order) error
+	DeleteOrder(ctx context.Context, id uint64) error
+}
+
 type orderRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func NewOrderRepository(db *gorm.DB) domain.OrderRepository {
+func NewOrderRepository(db *gorm.DB) OrderRepository {
 	return &orderRepositoryImpl{db: db}
 }
 

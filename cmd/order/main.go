@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"github.com/redis/go-redis/v9"
 	"github.com/scul0405/saga-orchestration/cmd/order/config"
 	"github.com/scul0405/saga-orchestration/internal/order/eventhandler"
 	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/db/postgres"
 	"github.com/scul0405/saga-orchestration/internal/order/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/order/interface/http"
-	"github.com/scul0405/saga-orchestration/internal/order/repository/pg_repo"
+	"github.com/scul0405/saga-orchestration/internal/order/repository/pgrepo"
+	"github.com/scul0405/saga-orchestration/internal/order/repository/proxy"
 	"github.com/scul0405/saga-orchestration/internal/order/service"
+	"github.com/scul0405/saga-orchestration/internal/pkg/cache"
 	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
 	kafkaClient "github.com/scul0405/saga-orchestration/pkg/kafka"
 	"github.com/scul0405/saga-orchestration/pkg/logger"
@@ -26,6 +29,8 @@ const (
 
 func main() {
 	log.Println("Start order service...")
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
 
 	cfgFile, err := config.LoadConfig("./config/config")
 	if err != nil {
@@ -62,8 +67,27 @@ func main() {
 	}
 	apiLogger.Info("Migrations successfully")
 
+	// create cache
+	localCache, err := cache.NewLocalCache(ctx, cfg.LocalCache.ExpirationTime)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
+
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:       cfg.RedisCache.Address,
+		Password:   cfg.RedisCache.Password,
+		DB:         cfg.RedisCache.DB,
+		PoolSize:   cfg.RedisCache.PoolSize,
+		MaxRetries: cfg.RedisCache.MaxRetries,
+	})
+	redisCache := cache.NewRedisCache(redisClient, time.Duration(cfg.RedisCache.ExpirationTime)*time.Second)
+
 	// create repositories
-	orderRepo := pg_repo.NewOrderRepository(psqlDB)
+	orderPgRepo := pgrepo.NewOrderRepository(psqlDB)
+	orderRepo, err := proxy.NewOrderRepository(orderPgRepo, localCache, redisCache, apiLogger)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
 
 	// Create connection
 	productClientConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.ProductSvc)
@@ -101,8 +125,6 @@ func main() {
 	orderEvHandler := eventhandler.NewEventHandler(cfg, apiLogger, consumer, producer, orderSvc)
 
 	doneCh := make(chan struct{}) // for graceful shutdown
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-	defer cancel()
 
 	// run event handler
 	orderEvHandler.Run(ctx)
