@@ -7,6 +7,7 @@ import (
 	"github.com/scul0405/saga-orchestration/internal/product/app/query"
 	"github.com/scul0405/saga-orchestration/internal/product/infrastructure/grpc"
 	"github.com/scul0405/saga-orchestration/internal/product/interface/http/dto"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
@@ -15,6 +16,7 @@ var (
 	OkMessage       = "success"
 	ErrInvalidID    = "invalid id"
 	ErrInvalidJSON  = "invalid json"
+	ErrNotFound     = "not found"
 	ErrInternal     = "internal error"
 	ErrInvalidToken = "invalid token"
 )
@@ -97,6 +99,11 @@ func (r *Router) GetProduct(c *gin.Context) {
 
 	products, err := r.app.Queries.GetProducts.Handle(c, query.GetProducts{ProductIDs: &productsID})
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": ErrNotFound})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternal})
 		return
 	}

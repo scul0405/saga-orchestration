@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/redis/go-redis/v9"
 	"github.com/scul0405/saga-orchestration/cmd/product/config"
 	"github.com/scul0405/saga-orchestration/internal/pkg/cache"
 	"github.com/scul0405/saga-orchestration/internal/pkg/grpcconn"
@@ -73,9 +74,21 @@ func main() {
 		apiLogger.Fatal(err)
 	}
 
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:       cfg.RedisCache.Address,
+		Password:   cfg.RedisCache.Password,
+		DB:         cfg.RedisCache.DB,
+		PoolSize:   cfg.RedisCache.PoolSize,
+		MaxRetries: cfg.RedisCache.MaxRetries,
+	})
+	redisCache := cache.NewRedisCache(redisClient, time.Duration(cfg.RedisCache.ExpirationTime)*time.Second)
+
 	// create repositories
 	productPgRepo := pgrepo.NewProductRepository(psqlDB)
-	productRepo := proxy.NewProductRepository(productPgRepo, localCache, apiLogger)
+	productRepo, err := proxy.NewProductRepository(productPgRepo, localCache, redisCache, apiLogger)
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
 
 	// create sony flake
 	sf, err := sonyflake.NewSonyFlake()
