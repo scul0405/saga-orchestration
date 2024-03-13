@@ -1,5 +1,49 @@
 version: "3.9"
 services:
+  account_db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=account_db
+    networks:
+      - api_network
+
+  product_db:
+    image: postgres:15-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=product_db
+    networks:
+      - api_network
+
+  order_db:
+    image: postgres:15-alpine
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=order_db
+    networks:
+      - api_network
+
+  payment_db:
+    image: postgres:15-alpine
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=payment_db
+    networks:
+      - api_network
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
     container_name: zookeeper
@@ -156,7 +200,6 @@ services:
     networks:
       redis_cluster_network:
         ipv4_address: 173.18.0.11
-
 
 networks:
   api_network:
