@@ -56,7 +56,7 @@ type LocalCache struct {
 }
 
 type RedisCache struct {
-	Address        string
+	Address        []string
 	Password       string
 	DB             int
 	PoolSize       int

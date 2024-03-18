@@ -74,13 +74,22 @@ func main() {
 		apiLogger.Fatal(err)
 	}
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:       cfg.RedisCache.Address,
-		Password:   cfg.RedisCache.Password,
-		DB:         cfg.RedisCache.DB,
-		PoolSize:   cfg.RedisCache.PoolSize,
-		MaxRetries: cfg.RedisCache.MaxRetries,
+	redisClient := redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs:         cfg.RedisCache.Address,
+		Password:      cfg.RedisCache.Password,
+		PoolSize:      cfg.RedisCache.PoolSize,
+		MaxRetries:    cfg.RedisCache.MaxRetries,
+		ReadOnly:      true,
+		RouteRandomly: true,
 	})
+
+	err = redisClient.ForEachShard(ctx, func(ctx context.Context, shard *redis.Client) error {
+		return shard.Ping(ctx).Err()
+	})
+	if err != nil {
+		apiLogger.Fatal(err)
+	}
+
 	redisCache := cache.NewRedisCache(redisClient, time.Duration(cfg.RedisCache.ExpirationTime)*time.Second)
 
 	// create repositories
