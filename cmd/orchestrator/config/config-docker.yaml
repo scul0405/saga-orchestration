@@ -1,0 +1,20 @@
+service:
+  Name: orchestrator_service
+  Mode: Development
+  Debug: true
+  ReadTimeout: 5
+  WriteTimeout: 5
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: console
+  Level: info
+
+rpcEndpoints:
+  authSvc: "auth_service:50051"
+  productSvc: "product_service:50051"
+
+kafka:
+  Brokers: ["host.docker.internal:9091"]

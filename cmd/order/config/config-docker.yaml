@@ -1,0 +1,53 @@
+service:
+  Name: order_service
+  Mode: Development
+  Debug: true
+  ReadTimeout: 5
+  WriteTimeout: 5
+
+http:
+  Port: 8080
+  Mode: debug
+
+grpc:
+  Port: 50051
+  Timeout: 15
+  Time: 5
+  MaxConnectionIdle: 30
+  MaxConnectionAge: 5
+
+logger:
+  Development: true
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: console
+  Level: info
+
+postgres:
+  DNS_URL: "host=order_db port=5432 user=admin password=secret dbname=order_db sslmode=disable"
+
+migration:
+  Enable: true
+  Recreate: false
+
+rpcEndpoints:
+  authSvc: "reverse-proxy:80"
+  productSvc: "reverse-proxy:80"
+
+kafka:
+  Brokers: ["host.docker.internal:9091"]
+
+localCache:
+  ExpirationTime: 600
+
+redisCache:
+  Address: ["redis-node-1:7000", "redis-node-2:7001", "redis-node-3:7002", "redis-node-4:7003", "redis-node-5:7004", "redis-node-6:7005"]
+  Password: ""
+  DB: 0
+  PoolSize: 10
+  MaxRetries: 3
+  ExpirationTime: 900
+  CuckooFilter:
+    Capacity: 600000
+    BucketSize: 2
+    MaxIterations: 20
