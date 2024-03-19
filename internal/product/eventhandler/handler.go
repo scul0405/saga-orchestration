@@ -31,7 +31,7 @@ type eventHandler struct {
 	logger     logger.Logger
 	consumer   kafkaClient.ConsumerGroup
 	producer   kafkaClient.Producer
-	productSvc app.Application
+	productSvc app.ProductApplication
 }
 
 func NewEventHandler(
@@ -39,7 +39,7 @@ func NewEventHandler(
 	logger logger.Logger,
 	consumer kafkaClient.ConsumerGroup,
 	producer kafkaClient.Producer,
-	productSvc app.Application) EventHandler {
+	productSvc app.ProductApplication) EventHandler {
 	return &eventHandler{
 		cfg:        cfg,
 		logger:     logger,

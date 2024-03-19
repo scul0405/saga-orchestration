@@ -51,7 +51,7 @@ func (srv *Server) InitRoutes() {
 		categoryGroup := apiGroup.Group("/categories")
 		categoryGroup.Use(mw.AuthMiddleware())
 		{
-
+			categoryGroup.POST("/", srv.Router.CreateCategory)
 		}
 	}
 }

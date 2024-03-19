@@ -99,6 +99,8 @@ func main() {
 		apiLogger.Fatal(err)
 	}
 
+	categoryPgRepo := pgrepo.NewCategoryRepositoryImpl(psqlDB)
+
 	// create sony flake
 	sf, err := sonyflake.NewSonyFlake()
 	if err != nil {
@@ -107,6 +109,7 @@ func main() {
 
 	// create services
 	productSvc := service.NewProductService(sf, apiLogger, productRepo)
+	categorySvc := service.NewCategoryService(sf, apiLogger, categoryPgRepo)
 
 	authConn, err := grpcconn.NewGRPCClientConn(cfg.RpcEnpoints.AuthSvc)
 	if err != nil {
@@ -116,7 +119,7 @@ func main() {
 
 	// create http server
 	engine := http.NewEngine(cfg.HTTP)
-	router := http.NewRouter(productSvc, authSvc)
+	router := http.NewRouter(productSvc, categorySvc, authSvc)
 	httpServer := http.NewHTTPServer(cfg.HTTP, apiLogger, engine, router)
 
 	// run http server

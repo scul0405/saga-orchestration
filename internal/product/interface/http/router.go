@@ -22,13 +22,18 @@ var (
 )
 
 type Router struct {
-	app     app.Application
+	productApp     app.ProductApplication
+	categoryApp app.CategoryApplication
 	authSvc grpc.AuthService
 }
 
-func NewRouter(app app.Application, authSvc grpc.AuthService) *Router {
+func NewRouter(
+	productApp app.ProductApplication, 
+	categoryApp app.CategoryApplication,
+	authSvc grpc.AuthService) *Router {
 	return &Router{
-		app:     app,
+		productApp:     productApp,
+		categoryApp: categoryApp,
 		authSvc: authSvc,
 	}
 }
@@ -40,7 +45,7 @@ func (r *Router) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	err := r.app.Commands.CreateProduct.Handle(c, command.CreateProduct{
+	err := r.productApp.Commands.CreateProduct.Handle(c, command.CreateProduct{
 		CategoryID:  product.CategoryID,
 		Name:        product.Name,
 		BrandName:   product.BrandName,
@@ -71,7 +76,7 @@ func (r *Router) UpdateProductDetail(c *gin.Context) {
 		return
 	}
 
-	err = r.app.Commands.UpdateProductDetail.Handle(c, command.UpdateProductDetail{
+	err = r.productApp.Commands.UpdateProductDetail.Handle(c, command.UpdateProductDetail{
 		ProductID:   productID,
 		Name:        product.Name,
 		BrandName:   product.BrandName,
@@ -97,7 +102,7 @@ func (r *Router) GetProduct(c *gin.Context) {
 
 	productsID := []uint64{productID}
 
-	products, err := r.app.Queries.GetProducts.Handle(c, query.GetProducts{ProductIDs: &productsID})
+	products, err := r.productApp.Queries.GetProducts.Handle(c, query.GetProducts{ProductIDs: &productsID})
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": ErrNotFound})
@@ -119,6 +124,25 @@ func (r *Router) GetProduct(c *gin.Context) {
 		Price:       product.Detail.Price,
 		Inventory:   product.Inventory,
 	})
+}
+
+func (r *Router) CreateCategory(c *gin.Context) {
+	var category dto.CreateCategory
+	if err := c.ShouldBindJSON(&category); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidJSON})
+		return
+	}
+
+	err := r.categoryApp.Commands.CreateCategory.Handle(c, command.CreateCategory{
+		Name:        category.Name,
+		Description: category.Description,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternal})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": OkMessage})
 }
 
 func (r *Router) extractCustomerID(c *gin.Context) uint64 {

@@ -19,7 +19,7 @@ func (srv *Server) CheckProducts(ctx context.Context, req *pb.CheckProductsReque
 		productIds[i].Quantity = item.GetQuantity()
 	}
 
-	productStatuses, err := srv.app.Queries.CheckProducts.Handle(ctx, query.CheckProducts{
+	productStatuses, err := srv.productApp.Queries.CheckProducts.Handle(ctx, query.CheckProducts{
 		Items: &productIds,
 	})
 	if err != nil {
@@ -46,7 +46,7 @@ func (srv *Server) CheckProducts(ctx context.Context, req *pb.CheckProductsReque
 
 func (srv *Server) GetProducts(ctx context.Context, req *pb.GetProductsRequest) (*pb.GetProductsResponse, error) {
 	productIDs := req.GetProductIds()
-	products, err := srv.app.Queries.GetProducts.Handle(ctx, query.GetProducts{
+	products, err := srv.productApp.Queries.GetProducts.Handle(ctx, query.GetProducts{
 		ProductIDs: &productIDs,
 	})
 	if err != nil {

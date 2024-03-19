@@ -15,15 +15,15 @@ import (
 
 type Server struct {
 	Port       string
-	app        app.Application
+	productApp        app.ProductApplication
 	grpcServer *grpc.Server
 	pb.UnimplementedProductServiceServer
 }
 
-func NewGRPCServer(config config.GRPC, app app.Application) *Server {
+func NewGRPCServer(config config.GRPC, productApp app.ProductApplication) *Server {
 	srv := &Server{
 		Port: config.Port,
-		app:  app,
+		productApp:  productApp,
 	}
 
 	srv.grpcServer = grpc.NewServer(
