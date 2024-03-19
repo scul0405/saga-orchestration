@@ -40,6 +40,89 @@ Run this command:
 make docker-up
 ```
 
+#### Simple usage
+First, we need to signup a new user:
+```bash
+curl --location 'http://localhost/api/v1/account/auth/register' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "email": "deptrai123@gmail.com",
+    "password": "deptrai123",
+    "first_name": "dep",
+    "last_name": "trai",
+    "address": "123 street",
+    "phone_number": "0123456788"
+}'
+```
+This will return a new token pair (refresh token + access token). We should provide the access token in the `Authorization` header for those APIs with authentication. If your access token is expired. You can login again or get new access token via refresh token.
+```bash
+curl --location 'http://localhost/api/v1/account/auth/login' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "email": "deptrai123@gmail.com",
+    "password": "deptrai123"
+}'
+```
+
+Next, let's create a category to contains some product:
+```bash
+curl --location 'http://localhost/api/v1/categories' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <access_token>' \
+--data '{
+    "name" : "whey",
+    "description": "whey protein"
+}'
+```
+
+Go to database and get ID of category recently created to create some products
+```bash
+curl --location 'http://localhost/api/v1/products' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <access_token>' \
+--data '{
+    "category_id": <category_id>,
+    "name": "Whey Protein Isolate",
+    "description": "100% Whey Protein Isolate",
+    "brand_name": "OstroVit",
+    "price": 1390,
+    "inventory": 1000
+}'
+```
+```bash
+curl --location 'http://localhost/api/v1/products' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <access_token>' \
+--data '{
+    "category_id": <category_id>,
+    "name": "Whey Protein Professional",
+    "description": "100% Whey Protein Professional",
+    "brand_name": "Scitec Nutrition",
+    "price": 3780,
+    "inventory": 1000
+}'
+```
+Here comes the core part. We are going to create a new purchase, which sends a new purchase event to the saga orchestrator and triggers distributed transactions.
+```bash
+curl --location 'http://localhost/api/v1/purchases' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <access_token>' \
+--data '{
+    "order_items": [
+        {
+            "product_id": <first_product_id>,
+            "quantity": 4
+        },
+        {
+            "product_id": <second_product_id>,
+            "quantity": 5
+        }
+    ],
+    "payment": {
+        "currency_code": "VND"
+    }
+}'
+```
 
 ## Services
 ### Account service
@@ -59,6 +142,7 @@ No. | API | Method | Authorization required | Description
 1 | [/api/v1/products/:id](http://localhost/api/v1/products/:id) | GET | false | Get a product with id
 2 | [/api/v1/products](http://localhost/api/v1/products) | POST | true | Create a product
 3 | [/api/v1/products/:id](http://localhost/api/v1/products) | PUT | true | Update product detail
+4 | [/api/v1/categories](http://localhost/api/v1/categories) | POST | true | Create a category
 
 ### Order service
 No. | API | Method | Authorization required | Description

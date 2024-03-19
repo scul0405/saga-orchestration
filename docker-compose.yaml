@@ -289,7 +289,7 @@ services:
         on-failure
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.product_service-http.rule=PathPrefix(`/api/v1/products`)"
+      - "traefik.http.routers.product_service-http.rule=PathPrefix(`/api/v1/products`) || PathPrefix(`/api/v1/categories`)"
       - "traefik.http.routers.product_service-http.entrypoints=web"
       - "traefik.http.routers.product_service-http.service=product_service-http"
       - "traefik.http.services.product_service-http.loadbalancer.server.port=8080"
